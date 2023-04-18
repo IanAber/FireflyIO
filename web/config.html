@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Firefly IO Configuration</title>
+    <script type="text/ecmascript" src="scripts/jquery-3.6.0.min.js"></script>
+    <script type="text/ecmascript" src="scripts/jquery-ui.js"></script>
+    <script type="text/ecmascript" src="scripts/config.js"></script>
+</head>
+<body onLoad=loadSettings() >
+    <div>
+        <h1>Firefly IO Board settings</h1>
+    </div>
+    <div>
+        <form action="/setSettings" method="post">
+            <label for="name">System Name</label><input type="text" id="name", name="name" value="Loading..."><br />
+            <table>
+                <thead>Analog Ports</thead>
+                <tbody>
+                    <tr>
+                        <th>Pin</th>
+                        <th>Name</th>
+                        <th>Low Value</th>
+                        <th>Low AtoD</th>
+                        <th>High Value</th>
+                        <th>High AtoD</th>
+                    </tr>
+                    <tr>
+                        <td>0</td>
+                        <td><input type="text" id="a0name" name="a0name" value="Loading..."></td>
+                        <td><input type="text" id="a0LowVal" name="a0LowVal"></td>
+                        <td><input type="text" id="a0LowA2D" name="a0LowA2D"></td>
+                        <td><input type="text" id="a0HighVal" name="a0HighVal"></td>
+                        <td><input type="text" id="a0HighA2D" name="a0HighA2D"></td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td><input type="text" id="a1name" name="a1name" value="Loading..."></td>
+                        <td><input type="text" id="a1LowVal" name="a1LowVal"></td>
+                        <td><input type="text" id="a1LowA2D" name="a1LowA2D"></td>
+                        <td><input type="text" id="a1HighVal" name="a1HighVal"></td>
+                        <td><input type="text" id="a1HighA2D" name="a1HighA2D"></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><input type="text" id="a2name" name="a2name" value="Loading..."></td>
+                        <td><input type="text" id="a2LowVal" name="a2LowVal"></td>
+                        <td><input type="text" id="a2LowA2D" name="a2LowA2D"></td>
+                        <td><input type="text" id="a2HighVal" name="a2HighVal"></td>
+                        <td><input type="text" id="a2HighA2D" name="a2HighA2D"></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><input type="text" id="a3name" name="a3name" value="Loading..."></td>
+                        <td><input type="text" id="a3LowVal" name="a3LowVal"></td>
+                        <td><input type="text" id="a3LowA2D" name="a3LowA2D"></td>
+                        <td><input type="text" id="a3HighVal" name="a3HighVal"></td>
+                        <td><input type="text" id="a3HighA2D" name="a3HighA2D"></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><input type="text" id="a4name" name="a4name" value="Loading..."></td>
+                        <td><input type="text" id="a4LowVal" name="a4LowVal"></td>
+                        <td><input type="text" id="a4LowA2D" name="a4LowA2D"></td>
+                        <td><input type="text" id="a4HighVal" name="a4HighVal"></td>
+                        <td><input type="text" id="a4HighA2D" name="a4HighA2D"></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><input type="text" id="a5name" name="a5name" value="Loading..."></td>
+                        <td><input type="text" id="a5LowVal" name="a5LowVal"></td>
+                        <td><input type="text" id="a5LowA2D" name="a5LowA2D"></td>
+                        <td><input type="text" id="a5HighVal" name="a5HighVal"></td>
+                        <td><input type="text" id="a5HighA2D" name="a5HighA2D"></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><input type="text" id="a6name" name="a6name" value="Loading..."></td>
+                        <td><input type="text" id="a6LowVal" name="a6LowVal"></td>
+                        <td><input type="text" id="a6LowA2D" name="a6LowA2D"></td>
+                        <td><input type="text" id="a6HighVal" name="a6HighVal"></td>
+                        <td><input type="text" id="a6HighA2D" name="a6HighA2D"></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><input type="text" id="a7name" name="a7name" value="Loading..."></td>
+                        <td><input type="text" id="a7LowVal" name="a7LowVal"></td>
+                        <td><input type="text" id="a7LowA2D" name="a7LowA2D"></td>
+                        <td><input type="text" id="a7HighVal" name="a7HighVal"></td>
+                        <td><input type="text" id="a7HighA2D" name="a7HighA2D"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <table>
+                <thead>Digital Output Ports</thead>
+                <tbody>
+                    <tr>
+                        <th>Pin</th>
+                        <th>Name</th>
+                    </tr>
+                    <tr>
+                        <td>0</td>
+                        <td><input type="text" id="do0name" name="do0name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td><input type="text" id="do1name" name="do1name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><input type="text" id="do2name" name="do2name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><input type="text" id="do3name" name="do3name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><input type="text" id="do4name" name="do4name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><input type="text" id="do5name" name="do5name" value="Loading..."></td>
+                    </tr>
+                </tbody>
+            </table>
+            <table>
+                <thead>Digital Input Ports</thead>
+                <tbody>
+                    <tr>
+                        <th>Pin</th>
+                        <th>Name</th>
+                    </tr>
+                    <tr>
+                        <td>0</td>
+                        <td><input type="text" id="di0name" name="di0name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td><input type="text" id="di1name" name="di1name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><input type="text" id="di2name" name="di2name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><input type="text" id="di3name" name="di3name" value="Loading..."></td>
+                    </tr>
+                </tbody>
+            </table>
+            <table>
+                <thead>Relays</thead>
+                <tbody>
+                    <tr>
+                        <th>Relay</th>
+                        <th>Name</th>
+                    </tr>
+                    <tr>
+                        <td>0</td>
+                        <td><input type="text" id="relay0name" name="relay0name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td><input type="text" id="relay1name" name="relay1name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><input type="text" id="relay2name" name="relay2name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><input type="text" id="relay3name" name="relay3name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><input type="text" id="relay4name" name="relay4name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><input type="text" id="relay5name" name="relay5name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><input type="text" id="relay6name" name="relay6name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><input type="text" id="relay7name" name="relay7name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td><input type="text" id="relay8name" name="relay8name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td><input type="text" id="relay9name" name="relay9name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td><input type="text" id="relay10name" name="relay10name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td><input type="text" id="relay11name" name="relay11name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td><input type="text" id="relay12name" name="relay12name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td><input type="text" id="relay13name" name="relay13name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td><input type="text" id="relay14name" name="relay14name" value="Loading..."></td>
+                    </tr>
+                    <tr>
+                        <td>15</td>
+                        <td><input type="text" id="relay15name" name="relay15name" value="Loading..."></td>
+                    </tr>
+                </tbody>
+            </table>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+    <a href="/default.html">Status</a>
+</body>
+</html>

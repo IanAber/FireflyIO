@@ -1,0 +1,55 @@
+/*!
+	*author: Ian Abercrombie
+	*project: Firefly Web
+*/
+
+div.gauge_row {
+    width:100%;
+}
+div.dial_gauge {
+    position:static;
+    float:left;
+    width:50%;
+    overflow:auto;
+}
+
+div.dial_gauge_electrolyser {
+    position:static;
+    margin:0 auto;
+    width:39vw;
+    height:39vh
+}
+
+div.dial_gauge_fuelcell {
+    width:39vw;
+    height:39vh;
+    position:static;
+    margin:0 auto;
+}
+
+div.calibration {
+    position:static;
+    margin:0 auto;
+    visibility:hidden;
+}
+
+div.calibrate_select {
+    position:static;
+    margin:0 auto;
+}
+
+div.linear_gauge {
+    position:static;
+    float:left;
+    width:10vw;
+    overflow:none;
+    margin:0;
+    height:100%;
+}
+
+div.linear_gauge_pressure {
+    position:static;
+    height:85vh;
+    margin:0 auto;
+}
+

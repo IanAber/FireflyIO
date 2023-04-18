@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Firefly IO Tester</title>
+    <link rel="stylesheet" type="text/css" href="css/fireflyio.css">
+    <link rel="stylesheet" href="scripts/jqwidgets/styles/jqx.base.css" type="text/css" />
+    <script type="text/ecmascript" src="scripts/jquery-3.6.0.min.js"></script>
+    <script type="text/ecmascript" src="scripts/jquery-ui.js"></script>
+    <script type="text/ecmascript" src="scripts/default.js"></script>
+    <script type="text/ecmascript" src="scripts/fuelcell.js"></script>
+    <script type="text/javascript" src="scripts/jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="scripts/jqwidgets/jqxdata.js"></script>
+    <script type="text/javascript" src="scripts/jqwidgets/jqxdraw.js"></script>
+    <script type="text/javascript" src="scripts/jqwidgets/jqxgauge.js"></script>
+    <script type="text/javascript" src="scripts/jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="scripts/jqwidgets/jqxbargauge.js"></script>
+
+</head>
+    <body>
+        <div>
+            <h1><span id="system">Loading...</span></h1>
+            <h1><span id="connection" class="connectionLost">Connection has been lost. please reload this page.</span></h1>
+        </div>
+        <div>
+            <table class="Relays">
+                <tr>
+                    <th id=relay0 class="RelayOff" onclick="clickRelay(0)"><span id="relayText0">Relay 0</span></th>
+                    <th id=relay1 class="RelayOff" onclick="clickRelay(1)"><span id="relayText1">Relay 1</span></th>
+                    <th id=relay2 class="RelayOff" onclick="clickRelay(2)"><span id="relayText2">Relay 2</span></th>
+                    <th id=relay3 class="RelayOff" onclick="clickRelay(3)"><span id="relayText3">Relay 3</span></th>
+                    <th id=relay4 class="RelayOff" onclick="clickRelay(4)"><span id="relayText4">Relay 4</span></th>
+                    <th id=relay5 class="RelayOff" onclick="clickRelay(5)"><span id="relayText5">Relay 5</span></th>
+                    <th id=relay6 class="RelayOff" onclick="clickRelay(6)"><span id="relayText6">Relay 6</span></th>
+                    <th id=relay7 class="RelayOff" onclick="clickRelay(7)"><span id="relayText7">Relay 7</span></th>
+                </tr>
+                <tr>
+                    <th id=relay8 class="RelayOff" onclick="clickRelay(8)"><span id="relayText8">Relay 8</span></th>
+                    <th id=relay9 class="RelayOff" onclick="clickRelay(9)"><span id="relayText9">Relay 9</span></th>
+                    <th id=relay10 class="RelayOff" onclick="clickRelay(10)"><span id="relayText10">Relay 10</span></th>
+                    <th id=relay11 class="RelayOff" onclick="clickRelay(11)"><span id="relayText11">Relay 11</span></th>
+                    <th id=relay12 class="RelayOff" onclick="clickRelay(12)"><span id="relayText12">Relay 12</span></th>
+                    <th id=relay13 class="RelayOff" onclick="clickRelay(13)"><span id="relayText13">Relay 13</span></th>
+                    <th id=relay14 class="RelayOff" onclick="clickRelay(14)"><span id="relayText14">Relay 14</span></th>
+                    <th id=relay15 class="RelayOff" onclick="clickRelay(15)"><span id="relayText15">Relay 15</span></th>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <h2>Analogue Inputs</h2>
+            <table>
+                <tr>
+                    <th>Name</th><th>Raw Value</th><th>Calculated Value</th>
+                </tr>
+                <tr>
+                    <td><span id="a0name">A0</span></td><td><span id="a0raw">0</span></td><td><span id="a0value">0</span></td>
+                </tr>
+                <tr>
+                    <td><span id="a1name">A0</span></td><td><span id="a1raw">0</span></td><td><span id="a1value">0</span></td>
+                </tr>
+                <tr>
+                    <td><span id="a2name">A0</span></td><td><span id="a2raw">0</span></td><td><span id="a2value">0</span></td>
+                </tr>
+                <tr>
+                    <td><span id="a3name">A0</span></td><td><span id="a3raw">0</span></td><td><span id="a3value">0</span></td>
+                </tr>
+                <tr>
+                    <td><span id="a4name">A0</span></td><td><span id="a4raw">0</span></td><td><span id="a4value">0</span></td>
+                </tr>
+                <tr>
+                    <td><span id="a5name">A0</span></td><td><span id="a5raw">0</span></td><td><span id="a5value">0</span></td>
+                </tr>
+                <tr>
+                    <td><span id="a6name">A0</span></td><td><span id="a6raw">0</span></td><td><span id="a6value">0</span></td>
+                </tr>
+                <tr>
+                    <td><span id="a7name">A0</span></td><td><span id="a7raw">0</span></td><td><span id="a7value">0</span></td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <h2>Digital Inputs</h2>
+            <table>
+                <tr>
+                    <th id="di0" class="DILow" ><span id="InputText0">Input-0</span></th>
+                    <th id="di1" class="DILow" ><span id="InputText1">Input-0</span></th>
+                    <th id="di2" class="DILow" ><span id="InputText2">Input-0</span></th>
+                    <th id="di3" class="DILow" ><span id="InputText3">Input-0</span></th>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <h2>Digital Outputs</h2>
+            <table>
+                <tr>
+                    <th id="do0" class="DOLow" onclick="clickOutput(0)"><span id="OutputText0">Output-0</span></th>
+                    <th id="do1" class="DOLow" onclick="clickOutput(1)"><span id="OutputText1">Output-1</span></th>
+                    <th id="do2" class="DOLow" onclick="clickOutput(2)"><span id="OutputText2">Output-2</span></th>
+                    <th id="do3" class="DOLow" onclick="clickOutput(3)"><span id="OutputText3">Output-3</span></th>
+                    <th id="do4" class="DOLow" onclick="clickOutput(4)"><span id="OutputText2">Output-4</span></th>
+                    <th id="do5" class="DOLow" onclick="clickOutput(5)"><span id="OutputText3">Output-5</span></th>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <h2>AC Measurements</h2>
+            <table>
+                <tr>
+                    <td>AC Voltage</td><td><span id="acvolts">0</span>V</td>
+                </tr>
+                <tr>
+                    <td>AC Current</td><td><span id="acamps">0</span>A</td>
+                </tr>
+                <tr>
+                    <td>AC Power</td><td><span id="acwatts">0</span>W</td>
+                </tr>
+                <tr>
+                    <td>AC Energy</td><td><span id="acwhr">0</span>Whr</td>
+                </tr>
+                <tr>
+                    <td>AC Frequency</td><td><span id="achz">0</span>Hz</td>
+                </tr>
+                <tr>
+                    <td>AC Power Factor</td><td><span id="acpf">0</span></td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <div style="display: grid; grid-template-columns: 25% 25% 25% 25%; border-top-color: black;border-top-width: 1px; border-top-style: solid;border-bottom-color: black;border-bottom-width: 1px; border-bottom-style: solid;">
+                <div class="centered">
+                    <div id="fcPressures"></div>
+                </div>
+                <div class="centered">
+                    <div id="fcTemperatures"></div>
+                </div>
+                <div class="centered">
+                    <div id="fcVoltages"></div>
+                </div>
+                <div class="centered">
+                    <div id="fcCurrent"></div>
+                </div>
+            </div>
+            <div id="fcStack" style="display: grid; grid-template-columns: 25% 25% 25% 25%; border-top-color: black;border-top-width: 1px; border-top-style: solid;border-bottom-color: black;border-bottom-width: 1px; border-bottom-style: solid;">
+                <div class="centered">
+                    <div id="fcStackPower"></div>
+                </div>
+                <div class="centered">
+                    <div id="fcStackVolts"></div>
+                </div>
+                <div class="centered">
+                    <div id="fcStackCurrent"></div>
+                </div>
+                <div class="centered">
+                    <table>
+                        <tr><th colspan="2">Fuel Cell Settings</th>"</tr>
+                        <tr><td>Target Power</td><td><span id="BMSPower"></span> (<span id="BMSTargetPower"></span>)kW</td></tr>
+                        <tr><td>BMS High Point</td><td><span id="BMSHigh"></span> (<span id="BMSTargetHigh"></span>)V</td></tr>
+                        <tr><td>BMS Low Point</td><td><span id="BMSLow"></span> (<span id="BMSTargetLow"></span>)V</td></tr>
+                        <tr><td>Current Power</td><td><span id="BMSCurrentPower"></span>kW</td></tr>
+                        <tr><td style="border-top-style: solid">Status</td><td style="border-top-style: solid"><span id="FCStatus"></span></td></tr>
+                    </table>
+                </div>
+            </div>
+            <div id="fcAlarms" class="alarm"></div>
+        </div>
+        <a href="/config.html">Configuration</a><br />
+        <span id="connStatus"></span><br />
+        <a href="/unknown">List unknown CAN frame IDs</a><br />
+        <a href="/getFuelCell">Show Fuel Cell Status</a><br />
+        <a href="/FuelCellSettings.html">Control the fuel cell</a><br />
+        <span id="version"></span>
+    </body>
+<script type="text/javascript">
+    $(document).ready(setupPage());
+</script>
+
+</html>

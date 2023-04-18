@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Fuel Cell Settings</title>
+        <script type="text/ecmascript" src="scripts/jquery-3.6.0.min.js"></script>
+        <script type="text/ecmascript" src="scripts/FuelCellSettings.js"></script>
+        <script type="text/ecmascript" src="scripts/fuelcell.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/fireflyio.css" />
+        <link rel="stylesheet" href="scripts/jqwidgets/styles/jqx.base.css" type="text/css" />
+        <script type="text/ecmascript" src="scripts/jquery-ui.js"></script>
+        <script type="text/ecmascript" src="scripts/default.js"></script>
+        <script type="text/javascript" src="scripts/jqwidgets/jqxcore.js"></script>
+        <script type="text/javascript" src="scripts/jqwidgets/jqxdata.js"></script>
+        <script type="text/javascript" src="scripts/jqwidgets/jqxdraw.js"></script>
+        <script type="text/javascript" src="scripts/jqwidgets/jqxgauge.js"></script>
+        <script type="text/javascript" src="scripts/jqwidgets/jqxbuttons.js"></script>
+        <script type="text/javascript" src="scripts/jqwidgets/jqxbargauge.js"></script>
+    </head>
+    <body>
+        <div>
+            <form id="settingsForm" action="setFuelCellSettings" method="post" >
+                <table>
+                    <tr>
+                        <td class="label">Power Demand</td>
+                        <td class="upDownButton">
+                            <img class="ArrowButton" src="images/left.png" onclick="PowerDown()" />
+                        </td>
+                        <td class="inputField">
+                            <input name="PowerDemand" id="PowerDemand" class="inputControl" >kW
+                        </td>
+                        <td>
+                            <img class="ArrowButton" src="images/right.png" onclick="PowerUp()" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">Battery High Setpoint</td>
+                        <td class="upDownButton">
+                            <img class="ArrowButton" src="images/left.png" onclick="HighBattDown()" />
+                        </td>
+                        <td class="inputField">
+                            <input name="HighBattDemand" id="HighBattDemand" class="inputControl" >V
+                        </td>
+                        <td class="upDownButton">
+                            <img class="ArrowButton" src="images/right.png" onclick="HighBattUp()" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">Battery Low Setpoint</td>
+                        <td class="upDownButton">
+                            <img class="ArrowButton" src="images/left.png" onclick="LowBattDown()" />
+                        </td>
+                        <td class="inputField">
+                            <input name="LowBattDemand" id="LowBattDemand" class="inputControl" >V
+                        </td>
+                        <td class="upDownButton">
+                            <img class="ArrowButton" src="images/right.png" onclick="LowBattUp()" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="inputField">
+                            <input type="button" class="submitButton" onclick="UpdateFuelCell()" value="Update">
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="inputField">
+                            <img id="SwitchOn" class="OnOffButton" src="images/switch-on.png" onclick="StartFuelCell()" />
+                            <img id="SwitchOff" class="OnOffButton" src="images/switch-off.png" onclick="StopFuelCell()" />
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><span id="updating" class="label">Updating the Fuel Cell</span></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div>
+            <div style="display: grid; grid-template-columns: 25% 25% 25% 25%; border-top-color: black;border-top-width: 1px; border-top-style: solid;border-bottom-color: black;border-bottom-width: 1px; border-bottom-style: solid;">
+                <div class="centered">
+                    <div id="fcPressures"></div>
+                </div>
+                <div class="centered">
+                    <div id="fcTemperatures"></div>
+                </div>
+                <div class="centered">
+                    <div id="fcVoltages"></div>
+                </div>
+                <div class="centered">
+                    <div id="fcCurrent"></div>
+                </div>
+            </div>
+            <div id="fcStack" style="display: grid; grid-template-columns: 25% 25% 25% 25%; border-top-color: black;border-top-width: 1px; border-top-style: solid;border-bottom-color: black;border-bottom-width: 1px; border-bottom-style: solid;">
+                <div class="centered">
+                    <div id="fcStackPower"></div>
+                </div>
+                <div class="centered">
+                    <div id="fcStackVolts"></div>
+                </div>
+                <div class="centered">
+                    <div id="fcStackCurrent"></div>
+                </div>
+                <div class="centered">
+                    <table>
+                        <tr><th colspan="2">Fuel Cell Settings</th>"</tr>
+                        <tr><td>Target Power</td><td><span id="BMSPower"></span> (<span id="BMSTargetPower"></span>)kW</td></tr>
+                        <tr><td>BMS High Point</td><td><span id="BMSHigh"></span> (<span id="BMSTargetHigh"></span>)V</td></tr>
+                        <tr><td>BMS Low Point</td><td><span id="BMSLow"></span> (<span id="BMSTargetLow"></span>)V</td></tr>
+                        <tr><td>Current Power</td><td><span id="BMSCurrentPower"></span>kW</td></tr>
+                        <tr><td style="border-top-style: solid">Status</td><td style="border-top-style: solid"><span id="FCStatus"></span></td></tr>
+                    </table>
+                </div>
+            </div>
+            <div id="fcAlarms" class="alarm"></div>
+        </div>
+        <a href="/default.html">status</a>
+    </body>
+    <script type="text/javascript">
+        $(document).ready(setupPage());
+    </script>
+</html>

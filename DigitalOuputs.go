@@ -2,17 +2,18 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"sync"
 )
 
 type DigitalOutputType struct {
-	Name string `json:name`
-	Pin  bool   `json:value`
+	Name string `json:"name"`
+	Pin  bool   `json:"value"`
 }
 
 type DigitalOutputsType struct {
-	Outputs [6]DigitalOutputType `json:outputs`
+	Outputs [6]DigitalOutputType `json:"outputs"`
 	mu      sync.Mutex
 }
 
@@ -30,7 +31,7 @@ func (do *DigitalOutputsType) SetAllOutputs(settings uint8) {
 	do.mu.Lock()
 	defer do.mu.Unlock()
 
-	for idx, _ := range Outputs.Outputs {
+	for idx := range Outputs.Outputs {
 		do.Outputs[idx].Pin = (settings & 1) != 0
 		settings >>= 1
 	}
@@ -60,7 +61,7 @@ func (do *DigitalOutputsType) GetOutputByName(port string) (bool, error) {
 			return op.Pin, nil
 		}
 	}
-	return false, fmt.Errorf("Invalid output port name - %s", port)
+	return false, fmt.Errorf("invalid output port name - %s", port)
 }
 
 func (do *DigitalOutputsType) SetOutputName(port uint8, name string) {
@@ -95,7 +96,9 @@ func (do *DigitalOutputsType) SetOutput(pin uint8, on bool) {
 	}
 	do.SetAllOutputs(op)
 	fmt.Printf("New outputs = %b\n", op)
-	canBus.SetDigitalOutputs(op)
+	if err := canBus.SetDigitalOutputs(op); err != nil {
+		log.Print(err)
+	}
 }
 
 func (do *DigitalOutputsType) SetOutputByName(pin string, on bool) error {
@@ -106,5 +109,5 @@ func (do *DigitalOutputsType) SetOutputByName(pin string, on bool) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("Invalid output port - %s", pin)
+	return fmt.Errorf("invalid output port - %s", pin)
 }

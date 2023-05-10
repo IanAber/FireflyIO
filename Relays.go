@@ -2,17 +2,18 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"sync"
 )
 
 type RelayType struct {
-	Name string `json:name`
-	On   bool   `json:value`
+	Name string `json:"name"`
+	On   bool   `json:"value"`
 }
 
 type RelaysType struct {
-	Relays [16]RelayType `json:relays`
+	Relays [16]RelayType `json:"relays"`
 	mu     sync.Mutex
 }
 
@@ -30,7 +31,7 @@ func (rl *RelaysType) SetAllRelays(settings uint16) {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
 
-	for relay, _ := range rl.Relays {
+	for relay := range rl.Relays {
 		rl.Relays[relay].On = (settings & 1) != 0
 		settings >>= 1
 	}
@@ -82,7 +83,9 @@ func (rl *RelaysType) SetRelay(relay uint8, on bool) {
 		relays &= ^(uint16(1) << relay)
 	}
 	// Set the hardware
-	canBus.SetRelays(relays)
+	if err := canBus.SetRelays(relays); err != nil {
+		log.Print(err)
+	}
 	// Update the local copy
 	rl.SetAllRelays(relays)
 }
@@ -90,18 +93,20 @@ func (rl *RelaysType) SetRelay(relay uint8, on bool) {
 func (rl *RelaysType) SetRelayByName(relay string, on bool) error {
 	relay = strings.ToLower(relay)
 	for idx, r := range rl.Relays {
-		if r.Name == relay {
+		if strings.ToLower(r.Name) == relay {
 			rl.SetRelay(uint8(idx), on)
 			return nil
 		}
 	}
-	return fmt.Errorf("Invalid relay name - %s", relay)
+	return fmt.Errorf("invalid relay name - %s", relay)
 }
 
-/**
-updateRelays retransmits the current relay settings as a heartbeat signal to the Firefly IO board
+/*
+UpdateRelays retransmits the current relay settings as a heartbeat signal to the Firefly IO board
 */
 func (rl *RelaysType) UpdateRelays() {
 	relays := rl.GetAllRelays()
-	canBus.SetRelays(relays)
+	if err := canBus.SetRelays(relays); err != nil {
+		log.Print(err)
+	}
 }

@@ -9,6 +9,11 @@ function loadSettings() {
                         data.DigitalInputs.forEach(SetDigitalInputSettings);
                         data.DigitalOutputs.forEach(SetDigitalOuputSettings);
                         data.Relays.forEach(SetRelaySettings);
+                        if (data.FuelCellSettings.IgnoreIsoLow) {
+                            $("#isoLowBehaviour").val("true")
+                        } else {
+                            $("#isoLowBehaviour").val("false")
+                        }
                     });
             }
         })

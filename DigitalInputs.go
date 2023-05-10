@@ -7,12 +7,12 @@ import (
 )
 
 type DigitalInputType struct {
-	Name string `json:name`
-	Pin  bool   `json:value`
+	Name string `json:"name"`
+	Pin  bool   `json:"value"`
 }
 
 type DigitalInputsType struct {
-	Inputs [4]DigitalInputType `json:inputs`
+	Inputs [4]DigitalInputType `json:"inputs"`
 	mu     sync.Mutex
 }
 
@@ -79,5 +79,5 @@ func (di *DigitalInputsType) GetInputByName(port string) (bool, error) {
 			return input.Pin, nil
 		}
 	}
-	return false, fmt.Errorf("Invalid input pin name - %s", port)
+	return false, fmt.Errorf("invalid input pin name - %s", port)
 }

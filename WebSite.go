@@ -29,15 +29,17 @@ func (nfs neuteredFileSystem) Open(path string) (http.File, error) {
 			if closeErr != nil {
 				return nil, closeErr
 			}
-
 			return nil, err
 		}
 	}
-
 	return f, nil
 }
 
 func setUpWebSite() {
+	//	pool = NewPool()
+	pool.Init()
+	go pool.Start()
+
 	log.Println("Staring the WEB site on port ", WebPort)
 	router := mux.NewRouter().StrictSlash(true)
 	// Register with the WebSocket which will then push a JSON payload with data to keep the displayed data up to date. No polling necessary.
@@ -53,9 +55,15 @@ func setUpWebSite() {
 	router.HandleFunc("/setFuelCell/TargetBattHigh/{volts}", setFcBattHigh).Methods("PUT")
 	router.HandleFunc("/setFuelCell/TargetBattLow/{volts}", setFcBatLow).Methods("PUT")
 	router.HandleFunc("/setFuelCell/Start", startFc).Methods("PUT")
-	router.HandleFunc("/setFuelCell/Stop}", stopFc).Methods("PUT")
+	router.HandleFunc("/setFuelCell/Stop", stopFc).Methods("PUT")
 	router.HandleFunc("/setFuelCellSettings", setFuelCellSettings).Methods("POST")
+	router.HandleFunc("/setFuelCell/ExhaustOpen", exhaustOpen).Methods("PUT")
+	router.HandleFunc("/setFuelCell/ExhaustClose", exhaustClose).Methods("PUT")
+	router.HandleFunc("/setFuelCell/Enable", enableFc).Methods("PUT")
+	router.HandleFunc("/setFuelCell/Disable", disableFc).Methods("PUT")
 	router.HandleFunc("/unknown", getUnknownFrames).Methods("GET")
+
+	router.HandleFunc("/FuelCellData/DCDC", getFuelCellData).Methods("GET")
 
 	fileServer := http.FileServer(neuteredFileSystem{http.Dir(webFiles)})
 	router.PathPrefix("/").Handler(http.StripPrefix("/", fileServer))
@@ -63,6 +71,48 @@ func setUpWebSite() {
 	log.Println("Starting WEB server")
 	port := fmt.Sprintf(":%s", WebPort)
 	log.Fatal(http.ListenAndServe(port, router))
+}
+
+func startDataWebSocket(w http.ResponseWriter, r *http.Request) {
+	//	fmt.Println("WebSocket Endpoint Hit")
+	conn, err := Upgrade(w, r)
+	if err != nil {
+		_, err = fmt.Fprintf(w, "%+v\n", err)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	client := &Client{
+		ID:   r.RemoteAddr,
+		Conn: conn,
+		//		Pool: pool,
+	}
+
+	pool.Register <- client
+}
+
+func enableFc(w http.ResponseWriter, r *http.Request) {
+	currentSettings.FuelCellSettings.Enabled = true
+	log.Println("Enabled")
+	if err := currentSettings.SaveSettings(currentSettings.filepath); err != nil {
+		ReturnJSONError(w, "Enable Fuel Cell", err, http.StatusInternalServerError, true)
+		return
+	} else {
+		getFuelCell(w, r)
+	}
+}
+
+func disableFc(w http.ResponseWriter, r *http.Request) {
+
+	currentSettings.FuelCellSettings.Enabled = false
+	log.Println("Disabled")
+	if err := currentSettings.SaveSettings(currentSettings.filepath); err != nil {
+		ReturnJSONError(w, "Enable Fuel Cell", err, http.StatusInternalServerError, true)
+		return
+	} else {
+		getFuelCell(w, r)
+	}
 }
 
 func setFcPower(w http.ResponseWriter, r *http.Request) {
@@ -73,11 +123,17 @@ func setFcPower(w http.ResponseWriter, r *http.Request) {
 	fPower, err := strconv.ParseFloat(request, 64)
 	if err != nil {
 		ReturnJSONError(w, function, err, http.StatusBadRequest, true)
+		return
 	}
 	log.Println("set fuel cell power to ", fPower)
 	err = FuelCell.setTargetPower(fPower)
 	if err != nil {
 		ReturnJSONError(w, function, err, http.StatusBadRequest, true)
+		return
+	}
+	if err := FuelCell.updateOutput(); err != nil {
+		ReturnJSONError(w, "Set Fuel Cell Power", err, http.StatusInternalServerError, true)
+		return
 	}
 	getFuelCell(w, r)
 }
@@ -90,14 +146,17 @@ func setFcBattHigh(w http.ResponseWriter, r *http.Request) {
 	fVolts, err := strconv.ParseFloat(request, 64)
 	if err != nil {
 		ReturnJSONError(w, function, err, http.StatusBadRequest, true)
+		return
 	}
 	log.Println("set fuel cell high battery limit to ", fVolts)
 	err = FuelCell.setTargetBattHigh(fVolts)
 	if err != nil {
 		ReturnJSONError(w, function, err, http.StatusBadRequest, true)
+		return
 	}
 	if err = FuelCell.updateSettings(); err != nil {
 		ReturnJSONError(w, function, err, http.StatusInternalServerError, true)
+		return
 	}
 	getFuelCell(w, r)
 }
@@ -110,14 +169,17 @@ func setFcBatLow(w http.ResponseWriter, r *http.Request) {
 	fVolts, err := strconv.ParseFloat(request, 64)
 	if err != nil {
 		ReturnJSONError(w, function, err, http.StatusBadRequest, true)
+		return
 	}
 	log.Println("set fuel cell low battery limit to ", fVolts)
 	err = FuelCell.setTargetBattLow(fVolts)
 	if err != nil {
 		ReturnJSONError(w, function, err, http.StatusBadRequest, true)
+		return
 	}
 	if err = FuelCell.updateSettings(); err != nil {
 		ReturnJSONError(w, function, err, http.StatusInternalServerError, true)
+		return
 	}
 	getFuelCell(w, r)
 }
@@ -132,6 +194,16 @@ func stopFc(w http.ResponseWriter, r *http.Request) {
 	getFuelCell(w, r)
 }
 
+func exhaustOpen(w http.ResponseWriter, r *http.Request) {
+	FuelCell.exhaustOpen()
+	getFuelCell(w, r)
+}
+
+func exhaustClose(w http.ResponseWriter, r *http.Request) {
+	FuelCell.exhaustClose()
+	getFuelCell(w, r)
+}
+
 func setFuelCellSettings(w http.ResponseWriter, r *http.Request) {
 	const function = "Set Fuel Cell Settings"
 	if err := r.ParseForm(); err != nil {
@@ -140,27 +212,35 @@ func setFuelCellSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	if floatval, err := strconv.ParseFloat(r.FormValue("PowerDemand"), 64); err != nil {
 		ReturnJSONError(w, function, err, http.StatusBadRequest, true)
+		return
 	} else {
-		currentSettings.FuelCellBatteryLimits.PowerSetting = floatval
+		currentSettings.FuelCellSettings.PowerSetting = floatval
 		FuelCell.Control.TargetPower = floatval
 	}
 	if floatval, err := strconv.ParseFloat(r.FormValue("LowBattDemand"), 64); err != nil {
 		ReturnJSONError(w, function, err, http.StatusBadRequest, true)
 	} else {
-		currentSettings.FuelCellBatteryLimits.LowBatterySetpoint = floatval
+		currentSettings.FuelCellSettings.LowBatterySetpoint = floatval
 		FuelCell.Control.TargetBatteryLow = floatval
 	}
 	if floatval, err := strconv.ParseFloat(r.FormValue("HighBattDemand"), 64); err != nil {
 		ReturnJSONError(w, function, err, http.StatusBadRequest, true)
 	} else {
-		currentSettings.FuelCellBatteryLimits.HighBatterySetpoint = floatval
+		currentSettings.FuelCellSettings.HighBatterySetpoint = floatval
 		FuelCell.Control.TargetBatteryHigh = floatval
 	}
-	currentSettings.SaveSettings(currentSettings.filepath)
-	FuelCell.updateSettings() // Update the battery limit settings
-	FuelCell.updateOutput()   // Update the power setting
+	if err := currentSettings.SaveSettings(currentSettings.filepath); err != nil {
+		log.Print(err)
+	}
+	if FuelCell.SystemInfo.Run {
+		if err := FuelCell.updateSettings(); err != nil { // Update the battery limit settings
+			log.Print(err)
+		}
+	}
+	if err := FuelCell.updateOutput(); err != nil { // Update the power setting
+		log.Print(err)
+	}
 	http.Redirect(w, r, "/FuelCellSettings.html", http.StatusTemporaryRedirect)
-
 }
 
 func setRelay(w http.ResponseWriter, r *http.Request) {
@@ -182,14 +262,17 @@ func setRelay(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err := Relays.SetRelayByName(relay, bOn); err != nil {
 			ReturnJSONError(w, "setRelay", err, http.StatusBadRequest, true)
+			return
 		}
 	} else {
 		if (relayNum >= 0) && (relayNum < int64(len(Relays.Relays))) {
 			Relays.SetRelay(uint8(relayNum), bOn)
 		} else {
 			ReturnJSONErrorString(w, "setRelay", fmt.Sprintf("Invalid relay number - %d", relayNum), http.StatusBadRequest, true)
+			return
 		}
 	}
+	getFuelCell(w, r)
 }
 
 func setOutput(w http.ResponseWriter, r *http.Request) {
@@ -211,6 +294,7 @@ func setOutput(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err := Outputs.SetOutputByName(output, bOn); err != nil {
 			ReturnJSONError(w, "setOutput", err, http.StatusBadRequest, true)
+			return
 		}
 	} else {
 		if (outputNum >= 0) && (outputNum < int64(len(Outputs.Outputs))) {
@@ -218,8 +302,10 @@ func setOutput(w http.ResponseWriter, r *http.Request) {
 			Outputs.SetOutput(uint8(outputNum), bOn)
 		} else {
 			ReturnJSONErrorString(w, "setOutput", fmt.Sprintf("Invalid output number - %d", outputNum), http.StatusBadRequest, true)
+			return
 		}
 	}
+	getFuelCell(w, r)
 }
 
 type JsonDataType struct {
@@ -238,7 +324,7 @@ type JsonDataType struct {
 	PanFuelCellStatus PanStatus
 }
 
-func getJsonStatus() (string, error) {
+func getJsonStatus() ([]byte, error) {
 	var data JsonDataType
 
 	data.System = currentSettings.Name
@@ -257,9 +343,9 @@ func getJsonStatus() (string, error) {
 
 	JSONBytes, err := json.Marshal(data)
 	if err != nil {
-		return "", err
+		return nil, err
 	} else {
-		return string(JSONBytes), nil
+		return JSONBytes, nil
 	}
 }
 
@@ -311,23 +397,32 @@ func setSettings(w http.ResponseWriter, r *http.Request) {
 		}
 		currentSettings.AnalogChannels[analog].calculateConstants()
 	}
-	currentSettings.SaveSettings(currentSettings.filepath)
-	currentSettings.LoadSettings(currentSettings.filepath)
+	if r.FormValue("isoLowBehaviour") == "true" {
+		currentSettings.FuelCellSettings.IgnoreIsoLow = true
+	} else {
+		currentSettings.FuelCellSettings.IgnoreIsoLow = false
+	}
+	if err := currentSettings.SaveSettings(currentSettings.filepath); err != nil {
+		log.Print(err)
+	}
+	if err := currentSettings.LoadSettings(currentSettings.filepath); err != nil {
+		log.Print(err)
+	}
 
 	http.Redirect(w, r, "/config.html", http.StatusTemporaryRedirect)
 }
 
-func getStatus(w http.ResponseWriter, r *http.Request) {
+func getStatus(w http.ResponseWriter, _ *http.Request) {
 	sJSON, err := getJsonStatus()
 	setContentTypeHeader(w)
-	_, err = fmt.Fprint(w, sJSON)
+	_, err = fmt.Fprint(w, string(sJSON))
 	if err != nil {
 		log.Println("failed to send the status - ", err)
 		return
 	}
 }
 
-func getFuelCell(w http.ResponseWriter, r *http.Request) {
+func getFuelCell(w http.ResponseWriter, _ *http.Request) {
 	strStatus, err := FuelCell.GetStatusAsJSON()
 	setContentTypeHeader(w)
 	if err != nil {

@@ -764,7 +764,7 @@
 }
 
 .jqx-checkbox-check-checked-material-green {
-    background: transparent url(images/material_check_white.png) center center no-repeat;
+    background: transparent url(./images/material_check_white.png) center center no-repeat;
 }
 .jqx-checkbox-check-indeterminate-material-green {
     width:14px !important;
@@ -1015,7 +1015,7 @@
 }
 
 .jqx-tree-item-arrow-collapse-rtl-material-green, .jqx-tree-item-arrow-collapse-hover-rtl-material-green {
-    background-image: url(images/material-icon-left.png);
+    background-image: url(./images/material-icon-left.png);
 }
 
 .jqx-menu-item-arrow-left-selected-material-green {
@@ -1051,7 +1051,7 @@
 }
 
 .jqx-combobox-material-green .jqx-icon-close-material-green {
-    background-image:url(images/close_white.png)
+    background-image:url(./images/close_white.png)
 }
 .jqx-combobox-material-green, .jqx-input-material-green {
     border-color: #E0E0E0;
@@ -1170,6 +1170,7 @@ textarea:focus ~ .jqx-input-label-material-green,
 .jqx-combobox-state-normal-material-green[hint=true] .jqx-input-label,
 .jqx-combobox-material-green .jqx-input-label.focused,
 .jqx-dropdownlist-material-green .jqx-input-label.focused,
+.jqx-dropdownbutton-material-green .jqx-input-label.focused,
 .jqx-datetimeinput-material-green[hint=true] .jqx-input-label,
 .jqx-maskedinput-material-green[hint=true] .jqx-input-label,
 .jqx-numberinput-material-green[hint=true] .jqx-input-label,
@@ -1186,6 +1187,7 @@ input:focus ~ .jqx-input-bar-material-green:before,
 textarea:focus ~ .jqx-input-bar-material-green:before,
 .jqx-dropdownlist-state-selected-material-green .jqx-input-bar:before,
 .jqx-dropdownlist-material-green .jqx-input-bar.focused:before,
+.jqx-dropdownbutton-material-green .jqx-input-bar.focused:before,
 .jqx-complex-input-group-material-green .jqx-input-bar.focused::before,
 .jqx-combobox-material-green .jqx-input-bar.focused:before,
 .jqx-combobox-state-selected-material-green .jqx-input-bar:before {
@@ -1490,19 +1492,19 @@ input[type="text"].jqx-input-material-green:-ms-input-placeholder, input[type="t
 }
 
 .jqx-tabs-close-button-material-green {
-    background-image: url(images/close.png);
+    background-image: url(./images/close.png);
     background-repeat: no-repeat;
     background-position: center;
 }
 
 .jqx-tabs-close-button-selected-material-green {
-    background-image: url(images/close.png);
+    background-image: url(./images/close.png);
     background-repeat: no-repeat;
     background-position: center;
 }
 
 .jqx-tabs-close-button-hover-material-green {
-    background-image: url(images/close.png);
+    background-image: url(./images/close.png);
     background-repeat: no-repeat;
     background-position: center;
 }
@@ -1556,21 +1558,21 @@ input[type="text"].jqx-input-material-green:-ms-input-placeholder, input[type="t
 }
 
 .jqx-grid-group-collapse-material-green {
-    background-image: url(images/material-icon-right.png);
+    background-image: url(./images/material-icon-right.png);
     background-position: 50% 50%;
     background-repeat: no-repeat;
 }
 
 .jqx-grid-group-collapse-rtl-material-green {
     padding-right: 0px;
-    background-image: url(images/material-icon-left.png);
+    background-image: url(./images/material-icon-left.png);
     background-position: 50% 50%;
     background-repeat: no-repeat;
 }
 
 .jqx-grid-group-expand-material-green, .jqx-grid-group-expand-rtl-material-green {
     padding-right: 0px;
-    background-image: url(images/material-icon-down.png);
+    background-image: url(./images/material-icon-down.png);
     background-position: 50% 50%;
     background-repeat: no-repeat;
 }
@@ -1792,11 +1794,11 @@ input[type="text"].jqx-input-material-green:-ms-input-placeholder, input[type="t
 }
 .jqx-fill-state-pressed-material-green .jqx-icon-search-material-green
 {
-    background-image: url(images/search_white.png);
+    background-image: url(./images/search_white.png);
 }
 .jqx-fill-state-pressed-material-green .jqx-icon-plus-material-green
 {
-    background-image: url(images/plus_white.png);
+    background-image: url(./images/plus_white.png);
 }
 .jqx-fill-state-pressed-material-green .jqx-menu-minimized-button-material-green {
    background-image: url('images/icon-menu-minimized-white.png');
@@ -1816,6 +1818,9 @@ input[type="text"].jqx-input-material-green:-ms-input-placeholder, input[type="t
     box-shadow: none !important;
 	color: #333;
 }
+.jqx-input-group-material-green.jqx-fill-state-disabled {
+	pointer-events: none;
+}
 
 /*applied to the timepicker*/
 .jqx-needle-central-circle-material-green {
@@ -1833,4 +1838,38 @@ input[type="text"].jqx-input-material-green:-ms-input-placeholder, input[type="t
 
 .jqx-svg-picker-material-green:focus {
 	border: 1px solid rgb(85, 139, 47) !important;
+}
+
+
+.jqx-split-layout-component-material-green .jqx-split-layout {
+    --jqx-primary-rgb: 85, 139, 47;
+    --jqx-primary: rgb(var(--jqx-primary-rgb));
+    --jqx-primary-color: #fff;
+    --jqx-background: #fff;
+    --jqx-background-color: rgba(0,0,0, .88);
+    --jqx-background-hover-rgb: 225, 225, 225;
+    --jqx-background-hover: rgb(var(--jqx-background-hover-rgb));
+    --jqx-background-color-hover: rgba(0,0,0,.54);
+    --jqx-surface-rgb: 255, 255, 255;
+    --jqx-surface: rgb(var(--jqx-surface-rgb));
+    --jqx-surface-color: rgba(0,0,0, .88);
+    --jqx-border: rgba(85, 139, 47, 1);
+}
+.jqx-dropdownbutton-popup,
+.jqx-calendar-material-green.jqx-popup,
+.jqx-listbox-material-green.jqx-popup,
+.jqx-grid-menu.jqx-popup {
+  transition: transform 0.25s ease-in-out, opacity 0.35s ease-in-out;
+  transform: scaleY(0);
+  opacity: 0;
+  transform-origin: top left;
+  display: block !important;
+}
+
+.jqx-dropdownbutton-popup.jqx-popup-show,
+.jqx-calendar-material-green.jqx-popup-show,
+.jqx-listbox-material-green.jqx-popup-show,
+.jqx-grid-menu.jqx-popup-show {
+  transform: scaleY(1);
+  opacity: 1;
 }

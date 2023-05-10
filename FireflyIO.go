@@ -3,13 +3,13 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
-	"sync"
 	"time"
 )
 
-const version = "1.0.05"
+const version = "1.0.25"
 
 /**********************************************************
 CAN bus must be enabled before this service can be started
@@ -59,7 +59,7 @@ func connectToDatabase() (*sql.Stmt, *sql.DB, error) {
 		pDB = nil
 		return nil, nil, err
 	}
-	logAnalog, err := db.Prepare("INSERT INTO firefly.IOValues(a0, a1, a2, a3, a4, a5, a6, a7, inputs, outputs, relays, ACVolts, ACAmps, ACWatts, ACHertz) VALUES  (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	logAnalog, err := db.Prepare("INSERT INTO firefly.IOValues(a0, a1, a2, a3, a4, a5, a6, a7, vref, cpuTemp, rawCpuTemp, inputs, outputs, relays, ACVolts, ACAmps, ACWatts, ACHertz) VALUES  (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err != nil {
 		log.Println(err)
 		if closeErr := db.Close(); closeErr != nil {
@@ -67,6 +67,70 @@ func connectToDatabase() (*sql.Stmt, *sql.DB, error) {
 		}
 		return nil, nil, err
 	}
+	dbRecord.stmt, err = db.Prepare(`INSERT INTO firefly.PANFuelCell (StackCurrent
+	, StackVoltage
+	, CoolantInlTemp
+	, CoolantOutTemp
+	, OutputVoltage
+	, OutputCurrent
+	, CoolantFanSpeed
+	, CoolantPumpSpeed
+	, CoolantPumpVolts
+	, CoolantPumpAmps
+	, InsulationResistance
+	, HydrogenPressure
+	, AirPressure
+	, CoolantPressure
+	, AirinletTemp
+	, AmbientTemp
+	, AirFlow
+	, HydrogenConcentration
+	, DCDCTemp, DCDCInVolts
+	, DCDCOutVolts
+	, DCDCInAmps
+	, DCDCOutAmps
+	, MinCellVolts
+	, MaxCellVolts
+	, AvgCellVolts
+	, IdxMaxCell
+	, IdxMinCell
+	, RunStage
+	, FaultLevel
+	, PowerModeState
+	, Cell00Volts
+	, Cell01Volts
+	, Cell02Volts
+	, Cell03Volts
+	, Cell04Volts
+	, Cell05Volts
+	, Cell06Volts
+	, Cell07Volts
+	, Cell08Volts
+	, Cell09Volts
+	, Cell10Volts
+	, Cell11Volts
+	, Cell12Volts
+	, Cell13Volts
+	, Cell14Volts
+	, Cell15Volts
+	, Cell16Volts
+	, Cell17Volts
+	, Cell18Volts
+	, Cell19Volts
+	, Cell20Volts
+	, Cell21Volts
+	, Cell22Volts
+	, Cell23Volts
+	, Cell24Volts
+	, Cell25Volts
+	, Cell26Volts
+	, Cell27Volts
+	, Cell28Volts
+	, Cell29Volts
+	, Cell30Volts
+	, Cell31Volts
+	) 
+		 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);`)
 
 	return logAnalog, db, err
 }
@@ -101,14 +165,22 @@ func init() {
 
 	log.Println("Loading the settings")
 	currentSettings = NewSettings()
-	currentSettings.LoadSettings(jsonSettings)
+	if err := currentSettings.LoadSettings(jsonSettings); err != nil {
+		log.Print(err)
+	}
 
 	log.Println("Connecting to can bus")
 	canBus = ConnectCANBus()
-	FuelCell.bus = canBus
-	FuelCell.setTargetBattHigh(currentSettings.FuelCellBatteryLimits.HighBatterySetpoint)
-	FuelCell.setTargetBattLow(currentSettings.FuelCellBatteryLimits.LowBatterySetpoint)
-	FuelCell.setTargetPower(currentSettings.FuelCellBatteryLimits.PowerSetting)
+	FuelCell.init(canBus)
+	if err := FuelCell.setTargetBattHigh(currentSettings.FuelCellSettings.HighBatterySetpoint); err != nil {
+		log.Print(err)
+	}
+	if err := FuelCell.setTargetBattLow(currentSettings.FuelCellSettings.LowBatterySetpoint); err != nil {
+		log.Print(err)
+	}
+	if err := FuelCell.setTargetPower(currentSettings.FuelCellSettings.PowerSetting); err != nil {
+		log.Print(err)
+	}
 
 	log.Println("Starting the WEB site.")
 	go setUpWebSite()
@@ -117,21 +189,13 @@ func init() {
 /**
 loggingLoop ticks every second and logs values to the database. It also broadcasts the values to any registered web socket clients.
 */
-func loggingLoop() {
-	loops := 0
-	done := make(chan bool)
-	loggingTime := time.NewTicker(time.Second)
-	logAnalog, pDB, err := connectToDatabase()
-	if err != nil {
-		log.Println(err)
-	}
+func ClientLoop() {
+	// Set up the sync to send data to waiting web socket clients
+	broadcastTime := time.NewTicker(time.Second)
 
 	for {
 		select {
-		case <-done:
-			log.Println("Exiting the logging loop. This should not happen!")
-			return
-		case <-loggingTime.C:
+		case <-broadcastTime.C:
 			{
 				if canBus == nil || canBus.bus == nil {
 					log.Println("Adding the CAN bus monitor")
@@ -149,53 +213,104 @@ func loggingLoop() {
 				}
 
 				//				log.Println("Broadcast")
-				dataSignal.Broadcast() // Signal to broadcast values to registered web socket clients
-
-				loops++
-				if loops >= 5 {
-					//					log.Println("Updating the relays")
-					Relays.UpdateRelays()     // Heartbeat to the FireflyIO board. If we don't send this the board will turn all relays off after about a minute.
-					FuelCell.updateSettings() // Update the battery limit settings
-					FuelCell.updateOutput()   // Update the power setting
-					loops = 0
-				}
-
-				// Log data to the database
-				if pDB == nil {
-					log.Println("Reconnect to the database")
-					logAnalog, pDB, err = connectToDatabase()
-					if err != nil {
-						log.Println(err)
-					}
-				}
-				if pDB != nil {
-					//					log.Println("Logging data")
-					if _, err := logAnalog.Exec(AnalogInputs.GetRawInput(0), AnalogInputs.GetRawInput(1), AnalogInputs.GetRawInput(2), AnalogInputs.GetRawInput(3),
-						AnalogInputs.GetRawInput(4), AnalogInputs.GetRawInput(5), AnalogInputs.GetRawInput(6), AnalogInputs.GetRawInput(7),
-						Inputs.GetAllInputs(), Outputs.GetAllOutputs(), Relays.GetAllRelays(),
-						ACMeasurements.getVolts(), ACMeasurements.getAmps(), ACMeasurements.getPower(), ACMeasurements.getFrequency()); err != nil {
-						log.Println(err)
-						if closeErr := pDB.Close(); closeErr != nil {
-							log.Println(closeErr)
-							pDB = nil
-							logAnalog = nil
-						}
-					}
+				bytes, err := getJsonStatus()
+				if err != nil {
+					log.Print("Error marshalling the data - ", err)
 				} else {
-					log.Println("Database is not connected")
+					select {
+					case pool.Broadcast <- bytes:
+					default:
+						fmt.Println("Channel would block!")
+					}
 				}
 			}
 		}
 	}
 }
 
-func main() {
-	// Set up the sync to send data to waiting web socket clients
-	dataSignal = sync.NewCond(&sync.Mutex{})
+func DatabaseLogger() {
+	var (
+		err       error
+		logAnalog *sql.Stmt
+	)
+	logAnalog, pDB, err = connectToDatabase()
+	if err != nil {
+		log.Println(err)
+	}
+	loggingTime := time.NewTicker(time.Second)
 
+	for {
+		select {
+		case <-loggingTime.C:
+			if pDB == nil {
+				log.Println("Reconnect to the database")
+				logAnalog, pDB, err = connectToDatabase()
+				if err != nil {
+					log.Println(err)
+				}
+			}
+			if pDB != nil {
+				//					log.Println("Logging data")
+				rawTemp, cpuTemp := AnalogInputs.GetCPUTemperature()
+				if _, err := logAnalog.Exec(AnalogInputs.GetRawInput(0), AnalogInputs.GetRawInput(1), AnalogInputs.GetRawInput(2), AnalogInputs.GetRawInput(3),
+					AnalogInputs.GetRawInput(4), AnalogInputs.GetRawInput(5), AnalogInputs.GetRawInput(6), AnalogInputs.GetRawInput(7),
+					AnalogInputs.GetVREF(), cpuTemp, rawTemp,
+					Inputs.GetAllInputs(), Outputs.GetAllOutputs(), Relays.GetAllRelays(),
+					ACMeasurements.getVolts(), ACMeasurements.getAmps(), ACMeasurements.getPower(), ACMeasurements.getFrequency(),
+				); err != nil {
+					log.Println(err)
+					if closeErr := pDB.Close(); closeErr != nil {
+						log.Println(closeErr)
+					}
+					pDB = nil
+					logAnalog = nil
+				}
+				if err := dbRecord.saveToDatabase(); err != nil {
+					log.Println(err)
+					if closeErr := pDB.Close(); closeErr != nil {
+						log.Println(closeErr)
+					}
+					pDB = nil
+					dbRecord.stmt = nil
+				}
+			} else {
+				log.Println("Database is not connected")
+			}
+		}
+	} // Log data to the database
+}
+
+/*
+CANHeartbeat sends CAN packets to the fuel cell
+*/
+func CANHeartbeat() {
+	heartbeatTime := time.NewTicker(time.Millisecond * 500)
+	for {
+		select {
+		case <-heartbeatTime.C:
+			{
+				if canBus != nil {
+					Relays.UpdateRelays() // Heartbeat to the FireflyIO board. If we don't send this the board will turn all relays off after about a minute.
+					if err := FuelCell.updateOutput(); err != nil {
+						log.Print(err)
+					}
+					if err := FuelCell.updateSettings(); err != nil {
+						log.Print(err)
+					}
+				} else {
+					log.Println("No CAN bus available")
+				}
+				heartbeat++
+			}
+		}
+	}
+}
+
+func main() {
 	// ToDo
 	//	go AcquireElectrolysers()
 
-	// Start the logging loop
-	loggingLoop()
+	go CANHeartbeat()
+	go DatabaseLogger()
+	ClientLoop()
 }

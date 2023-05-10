@@ -1,3 +1,18 @@
+div.centered {
+    margin:auto;
+    padding: 5px;
+    text-align: center;
+    width: 100%;
+}
+div.header {
+    background-color: black;
+    color: lightcyan;
+}
+
+img.logo {
+    float: right;
+}
+
 td.label {
     width:30%;
     text-align:right;
@@ -5,11 +20,22 @@ td.label {
     border-right-width:2px;
     padding-right:5px;
 }
+
+td.buttonLabel {
+    width:5em;
+    text-align:right;
+    border-right-style:solid;
+    border-right-width:2px;
+    padding-right:5px;
+}
+
 td.upDownButton {
-    width:2em;
+    width:1em;
+    text-align: center;
 }
 td.inputField {
     width:3em;
+    text-align: center;
 }
 td {
     padding-left:5px;
@@ -101,19 +127,61 @@ table.Water {
 }
 table.AC {
     width: 35vw;
-    border-color: darkslategray;
+    border-color: darkslategrey;
     border-width: medium;
     border-style: solid;
     background-color: palegreen;
 }
+table.settings {
+    border-color: darkslategrey;
+    border-width: medium;
+    border-style: solid;
+    background-color: gainsboro;
+}
+th.settings {
+    background-color: blue;
+    color: white;
+}
+th.settingsHeader {
+    background-color: blue;
+    color: white;
+    font-size: large;
+    font-weight: bold;
+}
+form.settings {
+    background-color: aliceblue;
+}
+input.settings {
+    background-color: antiquewhite;
+}
+
 span.connectionLost {
     font-weight: bold;
     color: red;
 }
+span.statusText {
+    font-weight: normal;
+    text-align: center;
+    width: 100%;
+}
 
-img.OnOffButton {
-    width: 5em;
-    height: 5em;
+img.swOn {
+    width: 2em;
+    height: 2em;
+    content: url("/images/power-on.png");
+}
+
+img.swOff {
+    width: 2em;
+    height: 2em;
+    content: url("/images/power-off.png");
+}
+
+img.depressed {
+    border:solid;
+    padding-top:3px;
+    padding-left:3px;
+    border-color:lightgrey;
 }
 
 img.ArrowButton {
@@ -128,11 +196,11 @@ img.ArrowButton {
     display:inline-block;
     cursor:pointer;
     color:#ffffff;
-    font-family:Arial;
+    font-family: Arial, serif;
     font-size:19px;
     padding:9px 45px;
     text-decoration:none;
-    text-shadow:1px 2px 0px #2f6627;
+    text-shadow:1px 2px 0 #2f6627;
 }
 .submitButton:hover {
     background-color:#5cbf2a;
@@ -143,17 +211,26 @@ img.ArrowButton {
 }
 .inputControl {
     color:#0b58a2;
-    font-family:Arial;
+    font-family: Arial, serif;
     font-size:19px;
-    padding:9px 45px;
+    padding:5px 5px;
     width: 3em;
 }
 span.alarm {
     color:#ff0000;
-    font-family: "Arial Black";
+    font-family: "Arial Black", serif;
     font-weight: bold;
     font-size: large;
 }
+span.units {
+    display: inline-block;
+    width:2em;
+}
+span.version {
+    font-size: small;
+    color: green;
+}
+
 div.alarm {
     background-color: #93c3cd;
 }

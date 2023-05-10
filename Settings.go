@@ -24,20 +24,22 @@ type PortNameType struct {
 	Port uint8
 }
 
-type FuelCellBatteryLimitsType struct {
-	HighBatterySetpoint float64
-	LowBatterySetpoint  float64
-	PowerSetting        float64
+type FuelCellSettingsType struct {
+	HighBatterySetpoint float64 // Default high battery setpoint
+	LowBatterySetpoint  float64 // Default low battery setpoint
+	PowerSetting        float64 // Default power level
+	IgnoreIsoLow        bool    // Flag to control IsoLow fault behaviour. True = suppress fault
+	Enabled             bool    // Allow us to control the fuel cell
 }
 
 type SettingsType struct {
-	Name                  string
-	AnalogChannels        [8]AnalogSettingType
-	DigitalInputs         [4]PortNameType
-	DigitalOutputs        [6]PortNameType
-	Relays                [16]PortNameType
-	FuelCellBatteryLimits FuelCellBatteryLimitsType
-	filepath              string
+	Name             string
+	AnalogChannels   [8]AnalogSettingType
+	DigitalInputs    [4]PortNameType
+	DigitalOutputs   [6]PortNameType
+	Relays           [16]PortNameType
+	FuelCellSettings FuelCellSettingsType
+	filepath         string
 }
 
 func NewSettings() *SettingsType {
@@ -66,6 +68,8 @@ func NewSettings() *SettingsType {
 		settings.Relays[idx].Port = uint8(idx)
 		settings.Relays[idx].Name = fmt.Sprintf("Relay-%d", idx)
 	}
+	settings.FuelCellSettings.IgnoreIsoLow = false
+	settings.FuelCellSettings.Enabled = false
 	return settings
 }
 
@@ -127,7 +131,9 @@ func (settings *SettingsType) SendSettingsJSON(w http.ResponseWriter) {
 	if bData, err := json.Marshal(settings); err != nil {
 		log.Println("Error converting settings to text -", err)
 	} else {
-		fmt.Fprint(w, string(bData))
+		if _, err := fmt.Fprint(w, string(bData)); err != nil {
+			log.Print(err)
+		}
 	}
 }
 

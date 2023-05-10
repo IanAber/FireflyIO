@@ -18,8 +18,10 @@
 
 </head>
     <body>
+        <div class="header">
+            <h1><span id="system">Loading...</span><img class="logo" src="images/logo.png" alt="ElektrikGreen Logo"/></h1>
+        </div>
         <div>
-            <h1><span id="system">Loading...</span></h1>
             <h1><span id="connection" class="connectionLost">Connection has been lost. please reload this page.</span></h1>
         </div>
         <div>
@@ -126,7 +128,7 @@
             </table>
         </div>
         <div>
-            <div style="display: grid; grid-template-columns: 25% 25% 25% 25%; border-top-color: black;border-top-width: 1px; border-top-style: solid;border-bottom-color: black;border-bottom-width: 1px; border-bottom-style: solid;">
+            <div style="display: grid; grid-template-columns: 20% 20% 20% 20% 20%; border-top-color: black;border-top-width: 1px; border-top-style: solid;border-bottom-color: black;border-bottom-width: 1px; border-bottom-style: solid;">
                 <div class="centered">
                     <div id="fcPressures"></div>
                 </div>
@@ -134,13 +136,18 @@
                     <div id="fcTemperatures"></div>
                 </div>
                 <div class="centered">
-                    <div id="fcVoltages"></div>
+                    <div id="fcVoltages" ondblclick="window.open('DCDC.html')"></div>
                 </div>
                 <div class="centered">
-                    <div id="fcCurrent"></div>
+                    <div id="fcCurrent" ondblclick="window.open('DCDC.html')"></div>
+                </div>
+                <div class="centered">
+                    <div id="fcInsulation"></div><br />
+                    <span class="statusText" id="fcInsulationStatus"></span><br />
+                    <span class="statusText" id="fcInsulationFault"></span>
                 </div>
             </div>
-            <div id="fcStack" style="display: grid; grid-template-columns: 25% 25% 25% 25%; border-top-color: black;border-top-width: 1px; border-top-style: solid;border-bottom-color: black;border-bottom-width: 1px; border-bottom-style: solid;">
+            <div id="fcStack" style="display: grid; grid-template-columns: 20% 20% 20% 20% 20%; border-top-color: black;border-top-width: 1px; border-top-style: solid;border-bottom-color: black;border-bottom-width: 1px; border-bottom-style: solid;">
                 <div class="centered">
                     <div id="fcStackPower"></div>
                 </div>
@@ -151,14 +158,10 @@
                     <div id="fcStackCurrent"></div>
                 </div>
                 <div class="centered">
-                    <table>
-                        <tr><th colspan="2">Fuel Cell Settings</th>"</tr>
-                        <tr><td>Target Power</td><td><span id="BMSPower"></span> (<span id="BMSTargetPower"></span>)kW</td></tr>
-                        <tr><td>BMS High Point</td><td><span id="BMSHigh"></span> (<span id="BMSTargetHigh"></span>)V</td></tr>
-                        <tr><td>BMS Low Point</td><td><span id="BMSLow"></span> (<span id="BMSTargetLow"></span>)V</td></tr>
-                        <tr><td>Current Power</td><td><span id="BMSCurrentPower"></span>kW</td></tr>
-                        <tr><td style="border-top-style: solid">Status</td><td style="border-top-style: solid"><span id="FCStatus"></span></td></tr>
-                    </table>
+                    <div id="fcWaterPumpSpeed"></div>
+                </div>
+                <div class="centered">
+                    <div id="fcCoolingFanSpeed"></div>
                 </div>
             </div>
             <div id="fcAlarms" class="alarm"></div>
@@ -168,10 +171,10 @@
         <a href="/unknown">List unknown CAN frame IDs</a><br />
         <a href="/getFuelCell">Show Fuel Cell Status</a><br />
         <a href="/FuelCellSettings.html">Control the fuel cell</a><br />
-        <span id="version"></span>
+        <span class="version">Version </span><span class="version" id="version"></span>
     </body>
 <script type="text/javascript">
-    $(document).ready(setupPage());
+    $(document).ready(setupPage);
 </script>
 
 </html>

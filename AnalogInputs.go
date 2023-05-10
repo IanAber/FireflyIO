@@ -8,16 +8,16 @@ import (
 )
 
 type AnalogInputType struct {
-	Name  string  `json:name`
-	Raw   uint16  `json:raw`
-	Value float32 `json:value`
+	Name  string  `json:"name"`
+	Raw   uint16  `json:"raw"`
+	Value float32 `json:"value"`
 }
 
 type AnalogInputsType struct {
-	Inputs         [8]AnalogInputType `json:inputs`
-	Temperature    int16              `json:temperature`
-	RawTemperature uint16             `json:rawTemperature`
-	VrefValue      uint16             `json:vref`
+	Inputs         [8]AnalogInputType `json:"inputs"`
+	Temperature    int16              `json:"temperature"`
+	RawTemperature uint16             `json:"rawTemperature"`
+	VrefValue      uint16             `json:"vref"`
 	mu             sync.Mutex
 }
 
@@ -90,7 +90,7 @@ func (ai *AnalogInputsType) GetInputByName(port string) (int32, error) {
 			}
 		}
 	}
-	return 0, fmt.Errorf("Invalid input name %s", port)
+	return 0, fmt.Errorf("invalid input name %s", port)
 }
 
 func (ai *AnalogInputsType) GetCPUTemperature() (rawValue uint16, celsiusValue float32) {
@@ -114,7 +114,7 @@ func (ai *AnalogInputsType) GetInput(port uint8) (uint16, float32) {
 	return ai.Inputs[port].Raw, ai.Inputs[port].Value
 }
 
-func (ai AnalogInputsType) GetRawInput(port uint8) uint16 {
+func (ai *AnalogInputsType) GetRawInput(port uint8) uint16 {
 	ai.mu.Lock()
 	defer ai.mu.Unlock()
 

@@ -1,15 +1,15 @@
+var wstimeout;
+
 function updateDisplay(data) {
     $("#PowerDemand").val(data.BMSTargetPower.toFixed(1));
     $("#HighBattDemand").val(data.BMSTargetHigh.toFixed(1));
     $("#LowBattDemand").val(data.BMSTargetLow.toFixed(1));
-//    $("#SwitchOff").hide();
 }
 
 function getSettings() {
     $.get("getFuelCell", function(data, status){
-        if (status == "success") {
+        if (status === "success") {
             updateDisplay(data);
-            $("#updating").hide();
         } else {
             alert("Status = " + status);
         }
@@ -18,71 +18,112 @@ function getSettings() {
 }
 
 function PowerDown() {
-    val = parseFloat($("#PowerDemand").val());
+    let pd = $("#PowerDemand");
+    val = parseFloat(pd.val());
     if (val <= 0) {
         return;
     }
-    $("#PowerDemand").val((val - 0.1).toFixed(1))
+    pd.val((val - 0.1).toFixed(1))
 }
 
 function PowerUp() {
-    val = parseFloat($("#PowerDemand").val());
+    let pd = $("#PowerDemand");
+    val = parseFloat(pd.val());
     if (val >= 10) {
         return;
     }
-    $("#PowerDemand").val((val + 0.1).toFixed(1))
+    pd.val((val + 0.1).toFixed(1))
 }
 
 function HighBattUp() {
-    val = parseFloat($("#HighBattDemand").val());
+    let hb = $("#HighBattDemand");
+    val = parseFloat(hb.val());
     if (val >= 70) {
         return;
     }
-    $("#HighBattDemand").val((val + 0.1).toFixed(1));
+    hb.val((val + 0.1).toFixed(1));
 }
 
 function HighBattDown() {
-    val = parseFloat($("#HighBattDemand").val());
+    let hb = $("#HighBattDemand");
+    val = parseFloat(hb.val());
     if (val <= 35) {
         return;
     }
-    $("#HighBattDemand").val((val - 0.1).toFixed(1));
+    hb.val((val - 0.1).toFixed(1));
 }
 
 function LowBattUp() {
-    val = parseFloat($("#LowBattDemand").val());
+    let ld = $("#LowBattDemand");
+    val = parseFloat(ld.val());
     if (val >= 70) {
         return;
     }
-    $("#LowBattDemand").val((val + 0.1).toFixed(1));
+    ld.val((val + 0.1).toFixed(1));
 }
 
 function LowBattDown() {
-    val = parseFloat($("#LowBattDemand").val());
+    let ld = $("#LowBattDemand");
+    val = parseFloat(ld.val());
     if (val <= 35) {
         return;
     }
-    $("#LowBattDemand").val((val - 0.1).toFixed(1));
+    ld.val((val - 0.1).toFixed(1));
 }
 
-function StartFuelCell() {
+function RunFuelCellClick() {
+    if ($("#Enable").hasClass("swOff")) {
+        alert("Control is disabled. Click the Enable button to allow control of the fuel cell.");
+        return;
+    }
+    let btn = $("#SwitchOnOff");
+    let onOff = btn.hasClass("swOn");
+    btn.addClass("depressed");
+    if (onOff) {
+        url = "/setFuelCell/Stop";
+    } else {
+        url = "/setFuelCell/Start";
+    }
     $.ajax({
         method : "PUT",
-        url: "/setFuelCell/Start"
+        url: url
     });
-    alert("Starting Fuel Cell");
 }
 
-function StopFuelCell() {
+function ExhaustClick() {
+    if ($("#Enable").hasClass("swOff")) {
+        alert("Control is disabled. Click the Enable button to allow control of the fuel cell.");
+        return;
+    }
+    let btn = $("#Exhaust");
+    btn.addClass("depressed");
+    if (btn.hasClass('swOn')) {
+        url = "/setFuelCell/ExhaustClose";
+    } else {
+        url = "/setFuelCell/ExhaustOpen";
+    }
+    btn.addClass("depressed");
     $.ajax({
         method : "PUT",
-        url: "/setFuelCell/Stop"
+        url: url
     });
-    alert("Stopping fuel cell");
+}
+
+function EnableFuelCellClick() {
+    let btn = $("#Enable");
+    btn.addClass("depressed");
+    if (btn.hasClass("swOn")) {
+        url = "/setFuelCell/Disable";
+    } else {
+        url = "/setFuelCell/Enable";
+    }
+    $.ajax({
+        method : "PUT",
+        url: url
+    });
 }
 
 function UpdateFuelCell() {
-    $("#updating").show();
     $("#settingsForm").submit();
 }
 
@@ -101,12 +142,17 @@ function setupPage() {
     $(window).on('windowResize', function () {
         window.location.reload();
     });
+    setInterval(() => {
+        UpdateGauges(jsonData);
+    }, 1000);
 }
 
 function showTimeoutMessage() {
     $("#connection").show();
     registerWebSocket();
 }
+
+var jsonData;
 
 function registerWebSocket() {
     let url = "ws://" + window.location.host + "/ws";
@@ -124,19 +170,49 @@ function registerWebSocket() {
         wstimeout = setTimeout(showTimeoutMessage, 15000)
         try {
             jsonData = JSON.parse(evt.data);
+
             $("#system").text(jsonData.System);
             $("#version").text(jsonData.Version);
-            jsonData.Relays.Relays.forEach(UpdateRelay);
-            jsonData.DigitalIn.Inputs.forEach(UpdateInput);
-            jsonData.DigitalOut.Outputs.forEach(UpdateOutput);
-            jsonData.Analog.Inputs.forEach(UpdateAnalog);
-            $("#acvolts").text(jsonData.ACVolts);
-            $("#acampss").text(jsonData.ACAmps);
-            $("#acwatts").text(jsonData.ACWatts);
-            $("#acwhr").text(jsonData.ACWattHours);
-            $("#achz").text(jsonData.ACHertz);
-            $("#acpf").text(jsonData.ACPowerFactor);
-            UpdateGauges(jsonData);
+            let sw = $("#Exhaust");
+            sw.removeClass("depressed");
+            bOn = (sw.attr('state') === "true");
+            if (jsonData.PanFuelCellStatus.ExhaustOpen) {
+                sw.addClass("swOn");
+                sw.removeClass("swOff");
+            } else {
+                sw.addClass("swOff");
+                sw.removeClass("swOn");
+            }
+
+            let onOff = $("#SwitchOnOff");
+            onOff.removeClass("depressed");
+            if (jsonData.PanFuelCellStatus.Start) {
+                onOff.addClass("swOn");
+                onOff.removeClass("swOff");
+            } else {
+                onOff.addClass("swOff");
+                onOff.removeClass("swOn");
+            }
+
+            let en = $("#Enable");
+            en.removeClass("depressed");
+            if (jsonData.PanFuelCellStatus.Enable) {
+                en.addClass("swOn");
+                en.removeClass("swOff");
+            } else {
+                en.addClass("swOff");
+                en.removeClass("swOn")
+            }
+
+            $("#BMSPower").text(jsonData.PanFuelCellStatus.BMSPower);
+            $("#BMSHigh").text(jsonData.PanFuelCellStatus.BMSHigh);
+            $("#BMSLow").text(jsonData.PanFuelCellStatus.BMSLow);
+            $("#BMSCurrentPower").text(jsonData.PanFuelCellStatus.BMSCurrentPower);
+            $("#BMSTargetPower").text(jsonData.PanFuelCellStatus.BMSTargetPower);
+            $("#BMSTargetHigh").text(jsonData.PanFuelCellStatus.BMSTargetHigh);
+            $("#BMSTargetLow").text(jsonData.PanFuelCellStatus.BMSTargetLow);
+            $("#FCStatus").text(jsonData.PanFuelCellStatus.RunStatus);
+            $("#FCDCOutputStatus").text(jsonData.PanFuelCellStatus.DCOutputStatus);
 
         } catch (e) {
             alert(e);

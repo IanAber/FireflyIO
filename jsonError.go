@@ -23,7 +23,7 @@ func (j *JSONError) AddErrorString(device string, err string) error {
 	e.Device = device
 	e.Err = err
 	j.Errors = append(j.Errors, e)
-	return fmt.Errorf("Device : %s | error %s", device, err)
+	return fmt.Errorf("device : %s | error %s", device, err)
 }
 
 func (j *JSONError) AddError(device string, err error) error {

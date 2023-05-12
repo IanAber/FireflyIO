@@ -6,10 +6,11 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
+	"os"
 	"time"
 )
 
-const version = "1.0.25"
+const version = "1.0.26"
 
 /**********************************************************
 CAN bus must be enabled before this service can be started
@@ -34,6 +35,8 @@ var (
 	webFiles         string
 	pDB              *sql.DB
 	FuelCell         PANFuelCell
+	logFile          *os.File
+	logFileName      string
 )
 
 func connectToDatabase() (*sql.Stmt, *sql.DB, error) {
@@ -155,7 +158,16 @@ func init() {
 	flag.StringVar(&databaseLogin, "dbUser", "FireflyService", "Database login user name")
 	flag.StringVar(&databasePassword, "dbPassword", "logger", "Database user password")
 	flag.StringVar(&databasePort, "dbPort", "3306", "Database port")
+	flag.StringVar(&logFileName, "logfile", "/var/log/FireflyIO", "Name of the log file")
 	flag.Parse()
+
+	// open log file
+	logFile, err := os.OpenFile(logFileName, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		log.Panic(err)
+	}
+	// set log out put
+	log.SetOutput(logFile)
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 
 	Relays.InitRelays()
@@ -187,7 +199,7 @@ func init() {
 }
 
 /**
-loggingLoop ticks every second and logs values to the database. It also broadcasts the values to any registered web socket clients.
+ClientLoop ticks every second and logs values to the database. It also broadcasts the values to any registered web socket clients.
 */
 func ClientLoop() {
 	// Set up the sync to send data to waiting web socket clients
@@ -242,6 +254,7 @@ func DatabaseLogger() {
 	for {
 		select {
 		case <-loggingTime.C:
+			log.Print("Log to DB")
 			if pDB == nil {
 				log.Println("Reconnect to the database")
 				logAnalog, pDB, err = connectToDatabase()
@@ -307,6 +320,12 @@ func CANHeartbeat() {
 }
 
 func main() {
+	defer func() {
+		if err := logFile.Close(); err != nil {
+			_, _ = fmt.Fprint(os.Stderr, err)
+		}
+	}()
+
 	// ToDo
 	//	go AcquireElectrolysers()
 

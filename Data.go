@@ -89,7 +89,6 @@ func getFuelCellData(w http.ResponseWriter, r *http.Request) {
 		ReturnJSONError(w, DeviceString, err, http.StatusInternalServerError, true)
 		return
 	} else {
-		log.Println("Got data....")
 		defer func() {
 			if err := rows.Close(); err != nil {
 				log.Print(err)

@@ -7,12 +7,12 @@ import (
 )
 
 type DigitalInputType struct {
-	Name string `json:"name"`
-	Pin  bool   `json:"value"`
+	Name string `json:"Name"`
+	Pin  bool   `json:"Value"`
 }
 
 type DigitalInputsType struct {
-	Inputs [4]DigitalInputType `json:"inputs"`
+	Inputs [4]DigitalInputType `json:"Inputs"`
 	mu     sync.Mutex
 }
 

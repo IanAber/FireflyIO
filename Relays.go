@@ -8,12 +8,12 @@ import (
 )
 
 type RelayType struct {
-	Name string `json:"name"`
-	On   bool   `json:"value"`
+	Name string `json:"Name"`
+	On   bool   `json:"On"`
 }
 
 type RelaysType struct {
-	Relays [16]RelayType `json:"relays"`
+	Relays [16]RelayType `json:"Relays"`
 	mu     sync.Mutex
 }
 

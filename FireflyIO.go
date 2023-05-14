@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const version = "1.0.26"
+const version = "1.0.27"
 
 /**********************************************************
 CAN bus must be enabled before this service can be started

@@ -8,16 +8,16 @@ import (
 )
 
 type AnalogInputType struct {
-	Name  string  `json:"name"`
-	Raw   uint16  `json:"raw"`
-	Value float32 `json:"value"`
+	Name  string  `json:"Name"`
+	Raw   uint16  `json:"Raw"`
+	Value float32 `json:"Value"`
 }
 
 type AnalogInputsType struct {
-	Inputs         [8]AnalogInputType `json:"inputs"`
-	Temperature    int16              `json:"temperature"`
-	RawTemperature uint16             `json:"rawTemperature"`
-	VrefValue      uint16             `json:"vref"`
+	Inputs         [8]AnalogInputType `json:"Inputs"`
+	Temperature    int16              `json:"Temperature"`
+	RawTemperature uint16             `json:"RawTemperature"`
+	VrefValue      uint16             `json:"VrefValue"`
 	mu             sync.Mutex
 }
 

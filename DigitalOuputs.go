@@ -8,12 +8,12 @@ import (
 )
 
 type DigitalOutputType struct {
-	Name string `json:"name"`
-	Pin  bool   `json:"value"`
+	Name string `json:"Name"`
+	Pin  bool   `json:"Value"`
 }
 
 type DigitalOutputsType struct {
-	Outputs [6]DigitalOutputType `json:"outputs"`
+	Outputs [6]DigitalOutputType `json:"Outputs"`
 	mu      sync.Mutex
 }
 

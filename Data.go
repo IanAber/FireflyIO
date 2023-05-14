@@ -18,7 +18,7 @@ func GetTimeRange(r *http.Request) (start time.Time, end time.Time, err error) {
 		err = fmt.Errorf("Exactly one 'start=' value must be supplied for start time")
 		return
 	}
-	timeVal, err := time.Parse("2006-1-2 15:04", values[0])
+	timeVal, err := time.Parse("2006-1-2 15:4", values[0])
 	if err != nil {
 		return
 	} else {
@@ -30,7 +30,7 @@ func GetTimeRange(r *http.Request) (start time.Time, end time.Time, err error) {
 		err = fmt.Errorf("Exactly one 'start=' value must be supplied for start time")
 		return
 	}
-	timeVal, err = time.Parse("2006-1-2 15:04", values[0])
+	timeVal, err = time.Parse("2006-1-2 15:4", values[0])
 	if err != nil {
 		return
 	} else {

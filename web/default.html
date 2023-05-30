@@ -49,39 +49,57 @@
             </table>
         </div>
         <div>
-            <h2>Analogue Inputs</h2>
+            <h2  class="AnalogueInputsTitle">Analogue Inputs</h2>
             <table>
-                <tr>
-                    <th>Name</th><th>Raw Value</th><th>Calculated Value</th>
+                <tr class="AnalogueHeader">
+                    <th class="AnalogueName">Name</th>
+                    <th class="AnalogueData">Raw Value</th>
+                    <th class="AnalogueData">Calculated Value</th>
                 </tr>
-                <tr>
-                    <td><span id="a0name">A0</span></td><td><span id="a0raw">0</span></td><td><span id="a0value">0</span></td>
+                <tr class="AnalogueData">
+                    <td class="AnalogueName"><span id="a0name">A0</span></td>
+                    <td class="AnalogueData"><span id="a0raw">0</span></td>
+                    <td class="AnalogueData"><span id="a0value">0</span></td>
                 </tr>
-                <tr>
-                    <td><span id="a1name">A0</span></td><td><span id="a1raw">0</span></td><td><span id="a1value">0</span></td>
+                <tr class="AnalogueData">
+                    <td class="AnalogueName"><span id="a1name">A0</span></td>
+                    <td class="AnalogueData"><span id="a1raw">0</span></td>
+                    <td class="AnalogueData"><span id="a1value">0</span></td>
                 </tr>
-                <tr>
-                    <td><span id="a2name">A0</span></td><td><span id="a2raw">0</span></td><td><span id="a2value">0</span></td>
+                <tr class="AnalogueData">
+                    <td class="AnalogueName"><span id="a2name">A0</span></td>
+                    <td class="AnalogueData"><span id="a2raw">0</span></td>
+                    <td class="AnalogueData"><span id="a2value">0</span></td>
                 </tr>
-                <tr>
-                    <td><span id="a3name">A0</span></td><td><span id="a3raw">0</span></td><td><span id="a3value">0</span></td>
+                <tr class="AnalogueData">
+                    <td class="AnalogueName"><span id="a3name">A0</span></td>
+                    <td class="AnalogueData"><span id="a3raw">0</span></td>
+                    <td class="AnalogueData"><span id="a3value">0</span></td>
                 </tr>
-                <tr>
-                    <td><span id="a4name">A0</span></td><td><span id="a4raw">0</span></td><td><span id="a4value">0</span></td>
+                <tr class="AnalogueData">
+                    <td class="AnalogueName"><span id="a4name">A0</span></td>
+                    <td class="AnalogueData"><span id="a4raw">0</span></td>
+                    <td class="AnalogueData"><span id="a4value">0</span></td>
                 </tr>
-                <tr>
-                    <td><span id="a5name">A0</span></td><td><span id="a5raw">0</span></td><td><span id="a5value">0</span></td>
+                <tr class="AnalogueData">
+                    <td class="AnalogueName"><span id="a5name">A0</span></td>
+                    <td class="AnalogueData"><span id="a5raw">0</span></td>
+                    <td class="AnalogueData"><span id="a5value">0</span></td>
                 </tr>
-                <tr>
-                    <td><span id="a6name">A0</span></td><td><span id="a6raw">0</span></td><td><span id="a6value">0</span></td>
+                <tr class="AnalogueData">
+                    <td class="AnalogueName"><span id="a6name">A0</span></td>
+                    <td class="AnalogueData"><span id="a6raw">0</span></td>
+                    <td class="AnalogueData"><span id="a6value">0</span></td>
                 </tr>
-                <tr>
-                    <td><span id="a7name">A0</span></td><td><span id="a7raw">0</span></td><td><span id="a7value">0</span></td>
+                <tr class="AnalogueData">
+                    <td class="AnalogueName"><span id="a7name">A0</span></td>
+                    <td class="AnalogueData"><span id="a7raw">0</span></td>
+                    <td class="AnalogueData"><span id="a7value">0</span></td>
                 </tr>
             </table>
         </div>
         <div>
-            <h2>Digital Inputs</h2>
+            <h2 class="DigitalInputsTitle">Digital Inputs</h2>
             <table>
                 <tr>
                     <th id="di0" class="DILow" ><span id="InputText0">Input-0</span></th>
@@ -92,7 +110,7 @@
             </table>
         </div>
         <div>
-            <h2>Digital Outputs</h2>
+            <h2 class="DigitalOutputsTitle">Digital Outputs</h2>
             <table>
                 <tr>
                     <th id="do0" class="DOLow" onclick="clickOutput(0)"><span id="OutputText0">Output-0</span></th>
@@ -104,28 +122,121 @@
                 </tr>
             </table>
         </div>
-        <div>
-            <h2>AC Measurements</h2>
-            <table>
-                <tr>
-                    <td>AC Voltage</td><td><span id="acvolts">0</span>V</td>
-                </tr>
-                <tr>
-                    <td>AC Current</td><td><span id="acamps">0</span>A</td>
-                </tr>
-                <tr>
-                    <td>AC Power</td><td><span id="acwatts">0</span>W</td>
-                </tr>
-                <tr>
-                    <td>AC Energy</td><td><span id="acwhr">0</span>Whr</td>
-                </tr>
-                <tr>
-                    <td>AC Frequency</td><td><span id="achz">0</span>Hz</td>
-                </tr>
-                <tr>
-                    <td>AC Power Factor</td><td><span id="acpf">0</span></td>
-                </tr>
-            </table>
+        <div style="display: grid; grid-template-columns: 60% 40%; border-top-color: black;border-top-width: 1px; border-top-style: solid;border-bottom-color: black;border-bottom-width: 1px; border-bottom-style: solid;">
+            <div id="ACMeasurementsDiv">
+                <h2 class="ACMeasurementTitle">AC Measurements</h2>
+                <table>
+                    <thead>
+                        <tr class="ACHeader">
+                            <th class="DeviceName">Device</th><th class="DeviceMeasurement">Voltage</th><th class="DeviceMeasurement">Current</th><th class="DeviceMeasurement">Power</th><th class="DeviceMeasurement">Energy</th><th class="DeviceMeasurement">Frequency</th><th class="DeviceMeasurement">Power Factor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="ACData" id="AC1">
+                            <td class="ACName"><span id="acname1"></span></td>
+                            <td class="ACData"><span id="acvolts1"></span>V</td>
+                            <td class="ACData"><span id="acamps1"></span>A</td>
+                            <td class="ACData"><span id="acwatts1"></span>W</td>
+                            <td class="ACData"><span id="acwhr1"></span>Whr</td>
+                            <td class="ACData"><span id="achz1"></span>Hz</td>
+                            <td class="ACData"><span id="acpf1"></span></td>
+                        </tr>
+                        <tr class="ACError" id="ACErr1">
+                            <td class="ACName"><span id="acnameerr1"></span></td>
+                            <td class="ACError" colspan="6"><span class="error" id="acerr1"></span></td>
+                        </tr>
+                        <tr class="ACData" id="AC2">
+                            <td class="ACName"><span id="acname2"></span></td>
+                            <td class="ACData"><span id="acvolts2"></span>V</td>
+                            <td class="ACData"><span id="acamps2"></span>A</td>
+                            <td class="ACData"><span id="acwatts2"></span>W</td>
+                            <td class="ACData"><span id="acwhr2"></span>Whr</td>
+                            <td class="ACData"><span id="achz2"></span>Hz</td>
+                            <td class="ACData"><span id="acpf2"></span></td>
+                        </tr>
+                        <tr class="ACError" id="ACErr2">
+                            <td class="ACName"><span id="acnameerr2"></span></td>
+                            <td class="ACError" colspan="6"><span class="error" id="acerr2"></span></td>
+                        </tr>
+                        <tr class="ACData" id="AC3">
+                            <td class="ACName"><span id="acname3"></span></td>
+                            <td class="ACData"><span id="acvolts3"></span>V</td>
+                            <td class="ACData"><span id="acamps3"></span>A</td>
+                            <td class="ACData"><span id="acwatts3"></span>W</td>
+                            <td class="ACData"><span id="acwhr3"></span>Whr</td>
+                            <td class="ACData"><span id="achz3"></span>Hz</td>
+                            <td class="ACData"><span id="acpf3"></span></td>
+                        </tr>
+                        <tr class="ACError" id="ACErr3">
+                            <td class="ACName"><span id="acnameerr3"></span></td>
+                            <td class="ACError" colspan="6"><span class="error" id="acerr3"></span></td>
+                        </tr>
+                        <tr class="ACData" id="AC4">
+                            <td class="ACName"><span id="acname4"></span></td>
+                            <td class="ACData"><span id="acvolts4"></span>V</td>
+                            <td class="ACData"><span id="acamps4"></span>A</td>
+                            <td class="ACData"><span id="acwatts4"></span>W</td>
+                            <td class="ACData"><span id="acwhr4"></span>Whr</td>
+                            <td class="ACData"><span id="achz4"></span>Hz</td>
+                            <td class="ACData"><span id="acpf4"></span></td>
+                        </tr>
+                        <tr class="ACError" id="ACErr4">
+                            <td class="ACName"><span id="acnameerr4"></span></td>
+                            <td class="ACError" colspan="6"><span class="error" id="acerr4"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="DCMeasurementsDiv">
+                <h2 class="DCMeasurementTitle">DC Measurements</h2>
+                <table>
+                    <thead>
+                        <tr class="DCHeader">
+                            <th class="DeviceName">Device</th>
+                            <th class="DeviceMeasurement">Voltage</th>
+                            <th class="DeviceMeasurement">Current</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+`                        <tr class="DCData" id="DC1">
+                            <td class="DCName"><span id="dcname1"></span></td>
+                            <td class="DCData"><span id="dcvolts1"></span>V</td>
+                            <td class="DCData"><span id="dcamps1"></span>A</td>
+                        </tr>
+                        <tr class="DCError" id="DCErr1">
+                            <td class="DCName"><span id="dcnameerr1"></span></td>
+                            <td class="DCError" colspan="6"><span class="error" id="dcerr1"></span></td>
+                        </tr>
+                        <tr class="DCData" id="DC2">
+                            <td class="DCName"><span id="dcname2"></span></td>
+                            <td class="DCData"><span id="dcvolts2"></span>V</td>
+                            <td class="DCData"><span id="dcamps2"></span>A</td>
+                        </tr>
+                        <tr class="DCError" id="DCErr2">
+                            <td class="DCName"><span id="dcnameerr2"></span></td>
+                            <td class="DCError" colspan="6"><span class="error" id="dcerr2"></span></td>
+                        </tr>
+                        <tr class="DCData" id="DC3">
+                            <td class="DCName"><span id="dcname3"></span></td>
+                            <td class="DCData"><span id="dcvolts3"></span>V</td>
+                            <td class="DCData"><span id="dcamps3"></span>A</td>
+                        </tr>
+                        <tr class="DCError" id="DCErr3">
+                            <td class="DCName"><span id="dcnameerr3"></span></td>
+                            <td class="DCError" colspan="6"><span class="error" id="dcerr3"></span></td>
+                        </tr>
+                        <tr class="DCData" id="DC4">
+                            <td class="DCName"><span id="dcname4"></span></td>
+                            <td class="DCData"><span id="dcvolts4"></span>V</td>
+                            <td class="DCData"><span id="dcamps4"></span>A</td>
+                        </tr>
+                        <tr class="DCError" id="DCErr4">
+                            <td class="DCName"><span id="dcnameerr4"></span></td>
+                            <td class="DCError" colspan="6"><span class="error" id="dcerr4"></span></td>
+                        </tr>
+`                    </tbody>
+                </table>
+            </div>
         </div>
         <div>
             <div style="display: grid; grid-template-columns: 20% 20% 20% 20% 20%; border-top-color: black;border-top-width: 1px; border-top-style: solid;border-bottom-color: black;border-bottom-width: 1px; border-bottom-style: solid;">
@@ -141,7 +252,7 @@
                 <div class="centered">
                     <div id="fcCurrent" ondblclick="window.open('DCDC.html')"></div>
                 </div>
-                <div class="centered">
+                <div id="InsulationDiv" class="centered">
                     <div id="fcInsulation"></div><br />
                     <span class="statusText" id="fcInsulationStatus"></span><br />
                     <span class="statusText" id="fcInsulationFault"></span>

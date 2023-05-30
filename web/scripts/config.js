@@ -9,6 +9,8 @@ function loadSettings() {
                         data.DigitalInputs.forEach(SetDigitalInputSettings);
                         data.DigitalOutputs.forEach(SetDigitalOuputSettings);
                         data.Relays.forEach(SetRelaySettings);
+                        data.ACMeasurement.forEach(SetACMeasurementSettings);
+                        data.DCMeasurement.forEach(SetDCMeasurementSettings);
                         if (data.FuelCellSettings.IgnoreIsoLow) {
                             $("#isoLowBehaviour").val("true")
                         } else {
@@ -37,4 +39,12 @@ function SetDigitalOuputSettings(channel) {
 
 function SetDigitalInputSettings(channel) {
     $("#di"+channel.Port+"name").val(channel.Name);
+}
+
+function SetACMeasurementSettings(channel) {
+    $("#ACMeasurement"+channel.SlaveID).val(channel.Name);
+}
+
+function SetDCMeasurementSettings(channel) {
+    $("#DCMeasurement"+channel.SlaveID).val(channel.Name);
 }

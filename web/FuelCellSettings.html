@@ -20,9 +20,38 @@
         <div class="header">
             <h1><span id="system">Loading...</span><img class="logo" src="images/logo.png" alt="ElektrikGreen Logo"/></h1>
         </div>
-        <div style="display: grid; grid-template-columns: 60% 40%; border-top-color: black;border-top-width: 1px; border-top-style: solid;border-bottom-color: black;border-bottom-width: 1px; border-bottom-style: solid;">
+        <div style="display: grid; grid-template-columns: 33% 66%; border-top-color: black;border-top-width: 1px; border-top-style: solid;border-bottom-color: black;border-bottom-width: 1px; border-bottom-style: solid;">
             <div class="centered">
-
+                <table>
+                    <tr>
+                        <td class="buttonLabel">Enable</td>
+                        <td class="inputField">
+                            <img id="Enable" class="swOff" src="images/power-off.png" alt="Enable" onclick="EnableFuelCellClick()" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="buttonLabel">Exhaust</td>
+                        <td class="inputField">
+                            <img id="Exhaust" class="swOff" src="images/power-off.png" alt="Open" onclick="ExhaustClick()" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="buttonLabel">Run</td>
+                        <td class="inputField">
+                            <img id="SwitchOnOff" class="swOn" src="images/power-on.png" alt="Run" onclick="RunFuelCellClick()" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border-top-style: solid">Status</td>
+                        <td style="border-top-style: solid"><span id="FCStatus"></span></td>
+                    </tr>
+                    <tr>
+                        <td>DC Output</td>
+                        <td><span id="FCDCOutputStatus"></span></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="centered">
                 <form id="settingsForm" action="/setFuelCellSettings" method="post" >
                     <table>
                         <tr>
@@ -62,40 +91,14 @@
                             </td>
                         </tr>
                         <tr>
-                            <td></td>
-                            <td colspan=3 style="text-align: center">
+                            <td colspan=2></td>
+                            <td style="text-align: center">
                                 <input type="button" class="submitButton" onclick="UpdateFuelCell()" value="Update">
                             </td>
-                        </tr>
-                    </table>
-                    <table>
-                        <tr>
-                            <td class="buttonLabel">Exhaust</td>
-                            <td class="inputField">
-                                <img id="Exhaust" class="swOff" src="images/power-off.png" alt="Open" onclick="ExhaustClick()" />
-                            </td>
-                            <td class="buttonLabel">Run</td>
-                            <td class="inputField">
-                                <img id="SwitchOnOff" class="swOn" src="images/power-on.png" alt="Run" onclick="RunFuelCellClick()" />
-                            </td>
-                            <td class="buttonLabel">Enable</td>
-                            <td class="inputField">
-                                <img id="Enable" class="swOff" src="images/power-off.png" alt="Enable" onclick="EnableFuelCellClick()" />
-                            </td>
+                            <td></td>
                         </tr>
                     </table>
                 </form>
-            </div>
-            <div class="centered">
-                <table>
-                    <tr><th colspan="2">Fuel Cell Settings</th>"</tr>
-                    <tr><td>Target Power</td><td><span id="BMSPower"></span> (<span id="BMSTargetPower"></span>)kW</td></tr>
-                    <tr><td>BMS High Point</td><td><span id="BMSHigh"></span> (<span id="BMSTargetHigh"></span>)V</td></tr>
-                    <tr><td>BMS Low Point</td><td><span id="BMSLow"></span> (<span id="BMSTargetLow"></span>)V</td></tr>
-                    <tr><td>Current Power</td><td><span id="BMSCurrentPower"></span>kW</td></tr>
-                    <tr><td style="border-top-style: solid">Status</td><td style="border-top-style: solid"><span id="FCStatus"></span></td></tr>
-                    <tr><td>DC Output</td><td><span id="FCDCOutputStatus"></span></td></tr>
-                </table>
             </div>
         </div>
         <div>
@@ -112,7 +115,7 @@
                 <div class="centered">
                     <div id="fcCurrent" ondblclick="window.open('DCDC.html')"></div>
                 </div>
-                <div class="centered">
+                <div id="InsulationDiv" class="centered">
                     <div id="fcInsulation"></div><br />
                     <span class="statusText" id="fcInsulationStatus"></span><br />
                     <span class="statusText" id="fcInsulationFault"></span>

@@ -46,18 +46,52 @@ div {
 h2 {
     text-align:center;
 }
+h2.AnalogueInputsTitle {
+    background-color: black;
+    color: #dad55e;
+}
+h2.ACMeasurementTitle {
+    background-color: black;
+    color: yellowgreen;
+}
+h2.DCMeasurementTitle {
+    background-color: black;
+    color: aliceblue;
+}
 table {
     margin:auto;
+}
+tr.AnalogueHeader{
+    background-color: black;
+    color: #fffa90;
+}
+tr.AnalogueData{
+    background-color: blanchedalmond;
+}
+th.AnalogueName{
+    padding-left: 20px;
+    padding-right: 20px;
+}
+th.AnalogueData{
+    padding-left: 20px;
+    padding-right: 20px;
+}
+td.AnalogueName {
+    text-align: right;
+    font-weight: bold;
+}
+td.AnalogueData {
+    text-align: center;
 }
 th.DIHigh {
     background-color:green;
     color:white;
-    padding:10px
+    padding: 10px;
 }
 th.DILow {
     background-color:red;
     color:white;
-    padding:10px
+    padding: 10px;
 }
 th.DOHigh {
     background-color:green;
@@ -138,6 +172,26 @@ table.settings {
     border-style: solid;
     background-color: gainsboro;
 }
+tr.ACHeader {
+    background-color: black;
+    color: greenyellow;
+}
+tr.ACData {
+    background-color: antiquewhite;
+}
+tr.ACError {
+    background-color: paleturquoise;
+}
+tr.DCHeader {
+    background-color: black;
+    color: aliceblue;
+}
+tr.DCData {
+    background-color: antiquewhite;
+}
+tr.DCError {
+    background-color: paleturquoise;
+}
 th.settings {
     background-color: blue;
     color: white;
@@ -148,6 +202,51 @@ th.settingsHeader {
     font-size: large;
     font-weight: bold;
 }
+th.ACName {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+th.ACData {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+th.DCName {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+th.DCData {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+td.ACName {
+    text-align: right;
+    font-weight: bold;
+}
+td.ACData {
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+td.ACError {
+    color: red;
+    font-weight: bold;
+    text-align: left;
+}
+td.DCName {
+    text-align: right;
+    font-weight: bold;
+}
+td.DCData {
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+td.DCError {
+    font-weight: bold;
+    text-align: left;
+}
+
 form.settings {
     background-color: aliceblue;
 }
@@ -229,6 +328,11 @@ span.units {
 span.version {
     font-size: small;
     color: green;
+}
+
+span.error {
+    color: red;
+    font-weight: bold;
 }
 
 div.alarm {

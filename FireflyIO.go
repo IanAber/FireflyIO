@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const version = "1.0.27"
+const version = "1.1.02"
 
 /**********************************************************
 CAN bus must be enabled before this service can be started
@@ -29,7 +29,8 @@ var (
 	Outputs          DigitalOutputsType
 	Inputs           DigitalInputsType
 	AnalogInputs     AnalogInputsType
-	ACMeasurements   ACMeasurementsType
+	ACMeasurements   [4]ACMeasurementsType
+	DCMeasurements   [4]DCMeasurementsType
 	jsonSettings     string
 	currentSettings  *SettingsType
 	webFiles         string
@@ -132,8 +133,9 @@ func connectToDatabase() (*sql.Stmt, *sql.DB, error) {
 	, Cell29Volts
 	, Cell30Volts
 	, Cell31Volts
+	, Alarms
 	) 
-		 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);`)
+		 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);`)
 
 	return logAnalog, db, err
 }
@@ -254,7 +256,6 @@ func DatabaseLogger() {
 	for {
 		select {
 		case <-loggingTime.C:
-			log.Print("Log to DB")
 			if pDB == nil {
 				log.Println("Reconnect to the database")
 				logAnalog, pDB, err = connectToDatabase()
@@ -269,7 +270,7 @@ func DatabaseLogger() {
 					AnalogInputs.GetRawInput(4), AnalogInputs.GetRawInput(5), AnalogInputs.GetRawInput(6), AnalogInputs.GetRawInput(7),
 					AnalogInputs.GetVREF(), cpuTemp, rawTemp,
 					Inputs.GetAllInputs(), Outputs.GetAllOutputs(), Relays.GetAllRelays(),
-					ACMeasurements.getVolts(), ACMeasurements.getAmps(), ACMeasurements.getPower(), ACMeasurements.getFrequency(),
+					ACMeasurements[0].getVolts(), ACMeasurements[0].getAmps(), ACMeasurements[0].getPower(), ACMeasurements[0].getFrequency(),
 				); err != nil {
 					log.Println(err)
 					if closeErr := pDB.Close(); closeErr != nil {
@@ -304,6 +305,9 @@ func CANHeartbeat() {
 			{
 				if canBus != nil {
 					Relays.UpdateRelays() // Heartbeat to the FireflyIO board. If we don't send this the board will turn all relays off after about a minute.
+					if err := canBus.SetFlags(currentSettings.getModbusFlags(), 0, 0, 0, 0, 0, 0, 0); err != nil {
+						log.Println(err)
+					}
 					if err := FuelCell.updateOutput(); err != nil {
 						log.Print(err)
 					}

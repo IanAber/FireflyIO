@@ -1,18 +1,24 @@
 package main
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 type ACMeasurementsType struct {
+	Name        string
 	Volts       float32
 	Amps        float32
 	Power       float32
 	WattHours   uint32
 	Frequency   float32
 	PowerFactor float32
+	Error       uint8
 	mu          sync.Mutex
 }
 
 func (ac *ACMeasurementsType) InitACMeasurement() {
+	ac.Name = ""
 	ac.Volts = 0.0
 	ac.Amps = 0.0
 	ac.Power = 0.0
@@ -105,14 +111,38 @@ func (ac *ACMeasurementsType) getPowerFactor() float32 {
 	return ac.PowerFactor
 }
 
-func (ac *ACMeasurementsType) setError() {
+func (ac *ACMeasurementsType) getError() string {
+	switch ac.Error {
+	case 0:
+		return ""
+	case 0xFF:
+		return "Not a Master"
+	case 0xFE:
+		return "Polling Error"
+	case 0xFD:
+		return "Buffer Overflow"
+	case 0xFC:
+		return "Bad CRC"
+	case 0xFB:
+		return "Exception"
+	case 0xFA:
+		return "Bad Size"
+	case 0xF9:
+		return "Bad Address"
+	case 0xF8:
+		return "Timeout"
+	case 0xF7:
+		return "Bad Slave ID"
+	case 0xF6:
+		return "Bad TCP ID"
+	default:
+		return fmt.Sprintf("Error = %0x", ac.Error)
+	}
+}
+
+func (ac *ACMeasurementsType) setError(err uint8) {
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
 
-	ac.Power = 0
-	ac.Frequency = 0
-	ac.Amps = 0
-	ac.PowerFactor = 0
-	ac.Volts = 0
-	ac.WattHours = 0
+	ac.Error = err
 }

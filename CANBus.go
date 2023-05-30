@@ -58,16 +58,40 @@ type CANBus struct {
 const FlagsCanId = 0x010
 
 const RelaysAndDigitalOutCanId = 0x011
-const RelaysOutputsAndHeartbeat = 0x019
+const RelaysOutputsAndHeartbeat = 0x016
 
 //  const DigitalInCanId = 0x012
 const AnalogInputs0to3CanId = 0x013
 const AnalogInputs4to7CanId = 0x014
 const AnalogInputsInternalCanId = 0x015
-const AcVoltsAmpsCanId = 0x016
-const AcPowerEnergyCanId = 0x017
-const AcHertzPfCanId = 0x018
-const AcErrorId = 0x20
+
+const AcVoltsAmpsCanId0 = 0x018
+const AcPowerEnergyCanId0 = 0x019
+const AcHertzPfCanId0 = 0x01A
+const AcErrorCanId0 = 0x1B
+const DcVoltsAmpsCanId0 = 0x1C
+const DcErrorCanId0 = 0x1F
+
+const AcVoltsAmpsCanId1 = 0x028
+const AcPowerEnergyCanId1 = 0x029
+const AcHertzPfCanId1 = 0x02A
+const AcErrorCanId1 = 0x2B
+const DcVoltsAmpsCanId1 = 0x2C
+const DcErrorCanId1 = 0x2F
+
+const AcVoltsAmpsCanId2 = 0x038
+const AcPowerEnergyCanId2 = 0x039
+const AcHertzPfCanId2 = 0x03A
+const AcErrorCanId2 = 0x3B
+const DcVoltsAmpsCanId2 = 0x3C
+const DcErrorCanId2 = 0x3F
+
+const AcVoltsAmpsCanId3 = 0x048
+const AcPowerEnergyCanId3 = 0x049
+const AcHertzPfCanId3 = 0x04A
+const AcErrorCanId3 = 0x4B
+const DcVoltsAmpsCanId3 = 0x4C
+const DcErrorCanId3 = 0x4F
 
 // handleCANFrame figures out what to do with each CAN frame received
 func (canBus *CANBus) handleCANFrame(frm can.Frame) {
@@ -101,10 +125,30 @@ func NewCANBus(interfaceName string) (*CANBus, error) {
 		canBus.FrameHandlers[AnalogInputs0to3CanId] = analogInputs0to3Handler
 		canBus.FrameHandlers[AnalogInputs4to7CanId] = analogInputs4to7Handler
 		canBus.FrameHandlers[AnalogInputsInternalCanId] = analogInputsInternalHandler
-		canBus.FrameHandlers[AcVoltsAmpsCanId] = acVoltsAndAmpsHandler
-		canBus.FrameHandlers[AcPowerEnergyCanId] = acPowerAndEnergyHandler
-		canBus.FrameHandlers[AcHertzPfCanId] = acPowerFactorAndFrequencyHandler
-		canBus.FrameHandlers[AcErrorId] = acErrorHandler
+		canBus.FrameHandlers[AcVoltsAmpsCanId0] = acVoltsAndAmpsHandler0
+		canBus.FrameHandlers[AcPowerEnergyCanId0] = acPowerAndEnergyHandler0
+		canBus.FrameHandlers[AcHertzPfCanId0] = acPowerFactorAndFrequencyHandler0
+		canBus.FrameHandlers[AcErrorCanId0] = acErrorHandler0
+		canBus.FrameHandlers[AcVoltsAmpsCanId1] = acVoltsAndAmpsHandler1
+		canBus.FrameHandlers[AcPowerEnergyCanId1] = acPowerAndEnergyHandler1
+		canBus.FrameHandlers[AcHertzPfCanId1] = acPowerFactorAndFrequencyHandler1
+		canBus.FrameHandlers[AcErrorCanId1] = acErrorHandler1
+		canBus.FrameHandlers[AcVoltsAmpsCanId2] = acVoltsAndAmpsHandler2
+		canBus.FrameHandlers[AcPowerEnergyCanId2] = acPowerAndEnergyHandler2
+		canBus.FrameHandlers[AcHertzPfCanId2] = acPowerFactorAndFrequencyHandler2
+		canBus.FrameHandlers[AcErrorCanId2] = acErrorHandler2
+		canBus.FrameHandlers[AcVoltsAmpsCanId3] = acVoltsAndAmpsHandler3
+		canBus.FrameHandlers[AcPowerEnergyCanId3] = acPowerAndEnergyHandler3
+		canBus.FrameHandlers[AcHertzPfCanId3] = acPowerFactorAndFrequencyHandler3
+		canBus.FrameHandlers[AcErrorCanId3] = acErrorHandler3
+		canBus.FrameHandlers[DcVoltsAmpsCanId0] = dcVoltsAndAmpsHandler0
+		canBus.FrameHandlers[DcErrorCanId0] = dcErrorHandler0
+		canBus.FrameHandlers[DcVoltsAmpsCanId1] = dcVoltsAndAmpsHandler1
+		canBus.FrameHandlers[DcErrorCanId1] = dcErrorHandler1
+		canBus.FrameHandlers[DcVoltsAmpsCanId2] = dcVoltsAndAmpsHandler2
+		canBus.FrameHandlers[DcErrorCanId2] = dcErrorHandler2
+		canBus.FrameHandlers[DcVoltsAmpsCanId3] = dcVoltsAndAmpsHandler3
+		canBus.FrameHandlers[DcErrorCanId3] = dcErrorHandler3
 
 		//canBus.FrameHandlers[CanOutputControlMsg] = CanOutputControlHandler
 		//canBus.FrameHandlers[CanBatterVoltageLimitsMsg] = CanBatterVoltageLimitsHandler
@@ -264,23 +308,110 @@ func analogInputsInternalHandler(frame can.Frame, _ *CANBus) {
 	Inputs.SetAllInputs(frame.Data[6] & 0xf)
 }
 
-func acVoltsAndAmpsHandler(frame can.Frame, _ *CANBus) {
-	ACMeasurements.setVolts(binary.LittleEndian.Uint16(frame.Data[0:2]))
-	ACMeasurements.setAmps(binary.LittleEndian.Uint32(frame.Data[2:6]))
+func acVoltsAndAmpsHandler(device uint8, frame can.Frame) {
+	ACMeasurements[device].setVolts(binary.LittleEndian.Uint16(frame.Data[0:2]))
+	ACMeasurements[device].setAmps(binary.LittleEndian.Uint32(frame.Data[2:6]))
+	ACMeasurements[device].setError(0)
 }
 
-func acPowerAndEnergyHandler(frame can.Frame, _ *CANBus) {
-	ACMeasurements.setPower(binary.LittleEndian.Uint32(frame.Data[0:4]))
-	ACMeasurements.setEnergy(binary.LittleEndian.Uint32(frame.Data[4:8]))
+func acVoltsAndAmpsHandler0(frame can.Frame, _ *CANBus) {
+	acVoltsAndAmpsHandler(0, frame)
+}
+func acVoltsAndAmpsHandler1(frame can.Frame, _ *CANBus) {
+	acVoltsAndAmpsHandler(1, frame)
+}
+func acVoltsAndAmpsHandler2(frame can.Frame, _ *CANBus) {
+	acVoltsAndAmpsHandler(2, frame)
+}
+func acVoltsAndAmpsHandler3(frame can.Frame, _ *CANBus) {
+	acVoltsAndAmpsHandler(3, frame)
 }
 
-func acErrorHandler(_ can.Frame, _ *CANBus) {
-	ACMeasurements.setError()
+func acPowerAndEnergyHandler(device uint8, frame can.Frame) {
+	ACMeasurements[device].setPower(binary.LittleEndian.Uint32(frame.Data[0:4]))
+	ACMeasurements[device].setEnergy(binary.LittleEndian.Uint32(frame.Data[4:8]))
+	ACMeasurements[device].setError(0)
+}
+func acPowerAndEnergyHandler0(frame can.Frame, _ *CANBus) {
+	acPowerAndEnergyHandler(0, frame)
+}
+func acPowerAndEnergyHandler1(frame can.Frame, _ *CANBus) {
+	acPowerAndEnergyHandler(1, frame)
+}
+func acPowerAndEnergyHandler2(frame can.Frame, _ *CANBus) {
+	acPowerAndEnergyHandler(2, frame)
+}
+func acPowerAndEnergyHandler3(frame can.Frame, _ *CANBus) {
+	acPowerAndEnergyHandler(3, frame)
 }
 
-func acPowerFactorAndFrequencyHandler(frame can.Frame, _ *CANBus) {
-	ACMeasurements.setFrequency(binary.LittleEndian.Uint16(frame.Data[0:2]))
-	ACMeasurements.setPowerFactor(binary.LittleEndian.Uint16(frame.Data[2:4]))
+func acErrorHandler(device uint8, frame can.Frame) {
+	ACMeasurements[device].setError(frame.Data[0])
+}
+func acErrorHandler0(frame can.Frame, _ *CANBus) {
+	acErrorHandler(0, frame)
+}
+func acErrorHandler1(frame can.Frame, _ *CANBus) {
+	acErrorHandler(1, frame)
+}
+func acErrorHandler2(frame can.Frame, _ *CANBus) {
+	acErrorHandler(2, frame)
+}
+func acErrorHandler3(frame can.Frame, _ *CANBus) {
+	acErrorHandler(3, frame)
+}
+
+func acPowerFactorAndFrequencyHandler(device uint8, frame can.Frame) {
+	ACMeasurements[device].setFrequency(binary.LittleEndian.Uint16(frame.Data[0:2]))
+	ACMeasurements[device].setPowerFactor(binary.LittleEndian.Uint16(frame.Data[2:4]))
+	ACMeasurements[device].setError(0)
+}
+func acPowerFactorAndFrequencyHandler0(frame can.Frame, _ *CANBus) {
+	acPowerFactorAndFrequencyHandler(0, frame)
+}
+func acPowerFactorAndFrequencyHandler1(frame can.Frame, _ *CANBus) {
+	acPowerFactorAndFrequencyHandler(1, frame)
+}
+func acPowerFactorAndFrequencyHandler2(frame can.Frame, _ *CANBus) {
+	acPowerFactorAndFrequencyHandler(2, frame)
+}
+func acPowerFactorAndFrequencyHandler3(frame can.Frame, _ *CANBus) {
+	acPowerFactorAndFrequencyHandler(3, frame)
+}
+
+func dcVoltsAndAmpsHandler(device uint8, frame can.Frame) {
+	DCMeasurements[device].setVolts(binary.LittleEndian.Uint16(frame.Data[0:2]))
+	DCMeasurements[device].setAmps(binary.LittleEndian.Uint32(frame.Data[2:6]))
+	DCMeasurements[device].setError(0)
+}
+
+func dcVoltsAndAmpsHandler0(frame can.Frame, _ *CANBus) {
+	dcVoltsAndAmpsHandler(0, frame)
+}
+func dcVoltsAndAmpsHandler1(frame can.Frame, _ *CANBus) {
+	dcVoltsAndAmpsHandler(1, frame)
+}
+func dcVoltsAndAmpsHandler2(frame can.Frame, _ *CANBus) {
+	dcVoltsAndAmpsHandler(2, frame)
+}
+func dcVoltsAndAmpsHandler3(frame can.Frame, _ *CANBus) {
+	dcVoltsAndAmpsHandler(3, frame)
+}
+
+func dcErrorHandler(device uint8, frame can.Frame) {
+	DCMeasurements[device].setError(frame.Data[0])
+}
+func dcErrorHandler0(frame can.Frame, _ *CANBus) {
+	dcErrorHandler(0, frame)
+}
+func dcErrorHandler1(frame can.Frame, _ *CANBus) {
+	dcErrorHandler(1, frame)
+}
+func dcErrorHandler2(frame can.Frame, _ *CANBus) {
+	dcErrorHandler(2, frame)
+}
+func dcErrorHandler3(frame can.Frame, _ *CANBus) {
+	dcErrorHandler(3, frame)
 }
 
 func (bus *CANBus) SetRelays(relays uint16) error {
@@ -302,6 +433,25 @@ func (bus *CANBus) SetDigitalOutputs(outputs uint8) error {
 	binary.LittleEndian.PutUint16(frame.Data[:], Relays.GetAllRelays())
 	frame.Data[2] = outputs
 	frame.ID = RelaysAndDigitalOutCanId
+	if err := bus.bus.Publish(frame); err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func (bus *CANBus) SetFlags(flag0 uint8, flag1 uint8, flag2 uint8, flag3 uint8, flag4 uint8, flag5 uint8, flag6 uint8, flag7 uint8) error {
+	var frame can.Frame
+	frame.Data[0] = flag0
+	frame.Data[1] = flag1
+	frame.Data[2] = flag2
+	frame.Data[3] = flag3
+	frame.Data[4] = flag4
+	frame.Data[5] = flag5
+	frame.Data[6] = flag6
+	frame.Data[7] = flag7
+	frame.ID = FlagsCanId
+	frame.Length = 8
 	if err := bus.bus.Publish(frame); err != nil {
 		log.Println(err)
 		return err

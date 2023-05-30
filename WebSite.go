@@ -50,17 +50,17 @@ func setUpWebSite() {
 	router.HandleFunc("/getSettings", getSettings).Methods("GET")
 	router.HandleFunc("/setSettings", setSettings).Methods("POST")
 	router.HandleFunc("/getStatus", getStatus).Methods("GET")
-	router.HandleFunc("/getFuelCell", getFuelCell).Methods("GET")
-	router.HandleFunc("/setFuelCell/TargetPower/{power}", setFcPower).Methods("PUT")
-	router.HandleFunc("/setFuelCell/TargetBattHigh/{volts}", setFcBattHigh).Methods("PUT")
-	router.HandleFunc("/setFuelCell/TargetBattLow/{volts}", setFcBatLow).Methods("PUT")
-	router.HandleFunc("/setFuelCell/Start", startFc).Methods("PUT")
-	router.HandleFunc("/setFuelCell/Stop", stopFc).Methods("PUT")
-	router.HandleFunc("/setFuelCellSettings", setFuelCellSettings).Methods("POST")
-	router.HandleFunc("/setFuelCell/ExhaustOpen", exhaustOpen).Methods("PUT")
-	router.HandleFunc("/setFuelCell/ExhaustClose", exhaustClose).Methods("PUT")
-	router.HandleFunc("/setFuelCell/Enable", enableFc).Methods("PUT")
-	router.HandleFunc("/setFuelCell/Disable", disableFc).Methods("PUT")
+	router.HandleFunc("/getFuelCell", getFuelCell).Methods("GET")                          // Returns the current status of the fuel cell only
+	router.HandleFunc("/setFuelCell/TargetPower/{power}", setFcPower).Methods("PUT")       // Set the target power output
+	router.HandleFunc("/setFuelCell/TargetBattHigh/{volts}", setFcBattHigh).Methods("PUT") // Set the battery high voltage setpoint
+	router.HandleFunc("/setFuelCell/TargetBattLow/{volts}", setFcBatLow).Methods("PUT")    // Set the batery low voltage set point
+	router.HandleFunc("/setFuelCell/Start", startFc).Methods("PUT")                        // Start the fuel cell
+	router.HandleFunc("/setFuelCell/Stop", stopFc).Methods("PUT")                          // Stop the fuel cell
+	router.HandleFunc("/setFuelCellSettings", setFuelCellSettings).Methods("POST")         // Submit a form with setpoints and power level
+	router.HandleFunc("/setFuelCell/ExhaustOpen", exhaustOpen).Methods("PUT")              // Start the water pump on high and beginn air removal
+	router.HandleFunc("/setFuelCell/ExhaustClose", exhaustClose).Methods("PUT")            // Stop the exhaust function
+	router.HandleFunc("/setFuelCell/Enable", enableFc).Methods("PUT")                      // Enable CAN communications to the fuel cell (we are always listening but may not be sending)
+	router.HandleFunc("/setFuelCell/Disable", disableFc).Methods("PUT")                    // Disable CAN communications to the fuel cell so it can be controlled locally by its own user interface
 	router.HandleFunc("/unknown", getUnknownFrames).Methods("GET")
 
 	router.HandleFunc("/FuelCellData/DCDC", getFuelCellData).Methods("GET")
@@ -308,6 +308,22 @@ func setOutput(w http.ResponseWriter, r *http.Request) {
 	getFuelCell(w, r)
 }
 
+type ACValuesType struct {
+	Name          string
+	ACVolts       float32
+	ACAmps        float32
+	ACWatts       float32
+	ACWattHours   uint32
+	ACHertz       float32
+	ACPowerFactor float32
+	Error         string
+}
+type DCValuesType struct {
+	Name    string
+	DCVolts float32
+	DCAmps  float32
+	Error   string
+}
 type JsonDataType struct {
 	System            string
 	Version           string
@@ -315,12 +331,8 @@ type JsonDataType struct {
 	Analog            *AnalogInputsType
 	DigitalOut        *DigitalOutputsType
 	DigitalIn         *DigitalInputsType
-	ACVolts           float32
-	ACAmps            float32
-	ACWatts           float32
-	ACWattHours       uint32
-	ACHertz           float32
-	ACPowerFactor     float32
+	ACMeasurements    []ACValuesType
+	DCMeasurements    []DCValuesType
 	PanFuelCellStatus PanStatus
 }
 
@@ -333,12 +345,45 @@ func getJsonStatus() ([]byte, error) {
 	data.DigitalIn = &Inputs
 	data.DigitalOut = &Outputs
 	data.Analog = &AnalogInputs
-	data.ACVolts = ACMeasurements.getVolts()
-	data.ACAmps = ACMeasurements.getAmps()
-	data.ACWatts = ACMeasurements.getPower()
-	data.ACWattHours = ACMeasurements.getEnergy()
-	data.ACHertz = ACMeasurements.getFrequency()
-	data.ACPowerFactor = ACMeasurements.getPowerFactor()
+	count := 0
+	for idx := range ACMeasurements {
+		if ACMeasurements[idx].Name != "" {
+			count++
+		}
+	}
+	data.ACMeasurements = make([]ACValuesType, count)
+	i := 0
+	for idx := range ACMeasurements {
+		if ACMeasurements[idx].Name != "" {
+			data.ACMeasurements[i].Name = ACMeasurements[idx].Name
+			data.ACMeasurements[i].ACVolts = ACMeasurements[idx].getVolts()
+			data.ACMeasurements[i].ACAmps = ACMeasurements[idx].getAmps()
+			data.ACMeasurements[i].ACWatts = ACMeasurements[idx].getPower()
+			data.ACMeasurements[i].ACWattHours = ACMeasurements[idx].getEnergy()
+			data.ACMeasurements[i].ACHertz = ACMeasurements[idx].getFrequency()
+			data.ACMeasurements[i].ACPowerFactor = ACMeasurements[idx].getPowerFactor()
+			data.ACMeasurements[i].Error = ACMeasurements[idx].getError()
+			i++
+		}
+	}
+
+	count = 0
+	for idx := range DCMeasurements {
+		if DCMeasurements[idx].Name != "" {
+			count++
+		}
+	}
+	data.DCMeasurements = make([]DCValuesType, count)
+	i = 0
+	for i := range DCMeasurements {
+		if DCMeasurements[i].Name != "" {
+			data.DCMeasurements[i].Name = DCMeasurements[i].Name
+			data.DCMeasurements[i].DCVolts = DCMeasurements[i].getVolts()
+			data.DCMeasurements[i].DCAmps = DCMeasurements[i].getAmps()
+			data.DCMeasurements[i].Error = DCMeasurements[i].getError()
+			i++
+		}
+	}
 	data.PanFuelCellStatus = FuelCell.GetStatus()
 
 	JSONBytes, err := json.Marshal(data)
@@ -402,6 +447,23 @@ func setSettings(w http.ResponseWriter, r *http.Request) {
 	} else {
 		currentSettings.FuelCellSettings.IgnoreIsoLow = false
 	}
+	currentSettings.ACMeasurement[0].Name = strings.TrimSpace(r.FormValue("ACMeasurement20"))
+	currentSettings.ACMeasurement[0].SlaveID = 20
+	currentSettings.ACMeasurement[1].Name = strings.TrimSpace(r.FormValue("ACMeasurement21"))
+	currentSettings.ACMeasurement[1].SlaveID = 21
+	currentSettings.ACMeasurement[2].Name = strings.TrimSpace(r.FormValue("ACMeasurement22"))
+	currentSettings.ACMeasurement[2].SlaveID = 22
+	currentSettings.ACMeasurement[3].Name = strings.TrimSpace(r.FormValue("ACMeasurement23"))
+	currentSettings.ACMeasurement[3].SlaveID = 23
+	currentSettings.DCMeasurement[0].Name = strings.TrimSpace(r.FormValue("DCMeasurement10"))
+	currentSettings.DCMeasurement[0].SlaveID = 10
+	currentSettings.DCMeasurement[1].Name = strings.TrimSpace(r.FormValue("DCMeasurement11"))
+	currentSettings.DCMeasurement[1].SlaveID = 11
+	currentSettings.DCMeasurement[2].Name = strings.TrimSpace(r.FormValue("DCMeasurement12"))
+	currentSettings.DCMeasurement[2].SlaveID = 12
+	currentSettings.DCMeasurement[3].Name = strings.TrimSpace(r.FormValue("DCMeasurement13"))
+	currentSettings.DCMeasurement[3].SlaveID = 13
+
 	if err := currentSettings.SaveSettings(currentSettings.filepath); err != nil {
 		log.Print(err)
 	}

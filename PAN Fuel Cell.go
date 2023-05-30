@@ -224,164 +224,134 @@ func (t *AirFlowType) GetFlow() float64 {
 const CanAlarmsMsg = 0x961088A5
 
 type AlarmsType struct {
-	VoltageLow             bool
-	H2concentration        bool
-	CoolantTempOutDiff     bool
-	CoolantTempHigh        bool
-	WaterPumpFault         bool
-	H2CirculatingPumpFault bool
-	H2PressureHigh         bool
-	H2PressureSensorFault  bool
-	DcdcCommunicationFault bool
-	DcdcFault              bool
-	PtcFault               bool
-	H2TankTemp             bool
-	H2TankHighPressure     bool
-	H2TankMidPressure      bool
-	H2TankLowPressure      bool
-	FcuToVcuFault          bool
-	TempSensorFault        bool
-	H2SPCheckFault         bool
-	H2SOCLow               bool
-	H2OutPressureLow       bool
-	AirPressureLow         bool
-	AirPressureHigh        bool
-	AirTempHigh            bool
-	CoolantPressureHigh    bool
-	CellVoltageHigh        bool
-	IsoLow                 bool
-	H2AirDiffHighMinus     bool
-	H2AirDiffHighPlus      bool
-	StartUploss            bool
-	H2Leakageloss          bool
+	bitMap uint32
 }
 
 func (al *AlarmsType) Load(data [8]byte) {
-	al.VoltageLow = (data[0] & 1) != 0
-	al.H2concentration = (data[0] & 2) != 0
-	al.CoolantTempOutDiff = (data[0] & 4) != 0
-	al.CoolantTempHigh = (data[0] & 8) != 0
-	al.WaterPumpFault = (data[0] & 0x10) != 0
-	al.H2CirculatingPumpFault = (data[0] & 0x20) != 0
-	al.H2PressureHigh = (data[0] & 0x40) != 0
-	al.H2PressureSensorFault = (data[0] & 0x80) != 0
-
-	al.DcdcCommunicationFault = (data[1] & 0x01) != 0
-	al.DcdcFault = (data[1] & 0x02) != 0
-	al.PtcFault = (data[1] & 0x04) != 0
-	al.H2TankTemp = (data[1] & 0x08) != 0
-	al.H2TankHighPressure = (data[1] & 0x10) != 0
-	al.H2TankMidPressure = (data[1] & 0x20) != 0
-	al.H2TankLowPressure = (data[1] & 0x40) != 0
-	al.FcuToVcuFault = (data[1] & 0x80) != 0
-
-	al.TempSensorFault = (data[2] & 0x01) != 0
-	al.H2SPCheckFault = (data[2] & 0x02) != 0
-	al.H2SOCLow = (data[2] & 0x04) != 0
-	al.H2OutPressureLow = (data[2] & 0x08) != 0
-	al.AirPressureLow = (data[2] & 0x10) != 0
-	al.AirPressureHigh = (data[2] & 0x20) != 0
-	al.AirTempHigh = (data[2] & 0x40) != 0
-	al.CoolantPressureHigh = (data[2] & 0x80) != 0
-
-	al.CellVoltageHigh = (data[3] & 0x01) != 0
-	al.IsoLow = (data[3] & 0x02) != 0
-	al.H2AirDiffHighMinus = (data[3] & 0x04) != 0
-	al.H2AirDiffHighPlus = (data[3] & 0x08) != 0
-	al.StartUploss = (data[3] & 0x10) != 0
-	al.H2Leakageloss = (data[3] & 0x20) != 0
+	al.bitMap = binary.LittleEndian.Uint32(data[0:4])
 }
+
+const AlarmVoltageLow = 0b00000000000000000000000000000001
+const AlarmH2concentration = 0b00000000000000000000000000000010
+const AlarmCoolantTempOutDiff = 0b00000000000000000000000000000100
+const AlarmCoolantTempHigh = 0b00000000000000000000000000001000
+const AlarmWaterPumpFault = 0b00000000000000000000000000010000
+const AlarmH2CirculatingPumpFault = 0b00000000000000000000000000100000
+const AlarmH2PressureHigh = 0b00000000000000000000000001000000
+const AlarmH2PressureSensorFault = 0b00000000000000000000000010000000
+const AlarmDcdcCommunicationFault = 0b00000000000000000000000100000000
+const AlarmDcdcFault = 0b00000000000000000000001000000000
+const AlarmPtcFault = 0b00000000000000000000010000000000
+const AlarmH2TankTemp = 0b00000000000000000000100000000000
+const AlarmH2TankHighPressure = 0b00000000000000000001000000000000
+const AlarmH2TankMidPressure = 0b00000000000000000010000000000000
+const AlarmH2TankLowPressure = 0b00000000000000000100000000000000
+const AlarmFcuToVcuFault = 0b00000000000000001000000000000000
+const AlarmTempSensorFault = 0b00000000000000010000000000000000
+const AlarmH2SPCheckFault = 0b00000000000000100000000000000000
+const AlarmH2SOCLow = 0b00000000000001000000000000000000
+const AlarmH2OutPressureLow = 0b00000000000010000000000000000000
+const AlarmAirPressureLow = 0b00000000000100000000000000000000
+const AlarmAirPressureHigh = 0b00000000001000000000000000000000
+const AlarmAirTempHigh = 0b00000000010000000000000000000000
+const AlarmCoolantPressureHigh = 0b00000000100000000000000000000000
+const AlarmCellVoltageHigh = 0b00000001000000000000000000000000
+const AlarmIsoLow = 0b00000010000000000000000000000000
+const AlarmH2AirDiffHighMinus = 0b00000100000000000000000000000000
+const AlarmH2AirDiffHighPlus = 0b00001000000000000000000000000000
+const AlarmStartUploss = 0b00010000000000000000000000000000
+const AlarmH2Leakageloss = 0b00100000000000000000000000000000
 
 func (al *AlarmsType) Text() []string {
 	alarmText := make([]string, 0)
-	if al.AirPressureLow {
+	if (al.bitMap & AlarmAirPressureLow) != 0 {
 		alarmText = append(alarmText, "Abnormal low air pressure")
 	}
-	if al.AirPressureHigh {
+	if (al.bitMap & AlarmAirPressureHigh) != 0 {
 		alarmText = append(alarmText, "Abnormal high air pressure")
 	}
-	if al.AirTempHigh {
+	if (al.bitMap & AlarmAirTempHigh) != 0 {
 		alarmText = append(alarmText, "Abnormally high air temperature")
 	}
-	if al.CoolantTempOutDiff {
+	if (al.bitMap & AlarmCoolantTempOutDiff) != 0 {
 		alarmText = append(alarmText, "Abnormal temperature difference between inlet and outlet")
 	}
-	if al.CoolantTempHigh {
+	if (al.bitMap & AlarmCoolantTempHigh) != 0 {
 		alarmText = append(alarmText, "Abnormally high outlet water temperature")
 	}
-	if al.CoolantPressureHigh {
+	if (al.bitMap & AlarmCoolantPressureHigh) != 0 {
 		alarmText = append(alarmText, "Abnormal high cooling water pressure")
 	}
-	if al.CellVoltageHigh {
+	if (al.bitMap & AlarmCellVoltageHigh) != 0 {
 		alarmText = append(alarmText, "Stack cell high voltage abnormality")
 	}
-	if al.DcdcFault {
+	if (al.bitMap & AlarmDcdcFault) != 0 {
 		alarmText = append(alarmText, "DC to DC Converter Fault")
 	}
-	if al.DcdcCommunicationFault {
+	if (al.bitMap & AlarmDcdcCommunicationFault) != 0 {
 		alarmText = append(alarmText, "DC to DC Converter Communication Fault")
 	}
-	if al.FcuToVcuFault {
+	if (al.bitMap & AlarmFcuToVcuFault) != 0 {
 		alarmText = append(alarmText, "FCU communication abnormal")
 	}
-	if al.H2AirDiffHighMinus {
+	if (al.bitMap & AlarmH2AirDiffHighMinus) != 0 {
 		alarmText = append(alarmText, "Abnormal large hydrogen-air pressure difference (negative direction)")
 	}
-	if al.H2AirDiffHighPlus {
+	if (al.bitMap & AlarmH2AirDiffHighPlus) != 0 {
 		alarmText = append(alarmText, "Abnormal hydrogen-air pressure difference (forward direction)")
 	}
-	if al.H2concentration {
+	if (al.bitMap & AlarmH2concentration) != 0 {
 		alarmText = append(alarmText, "Abnormal hydrogen concentration in the module")
 	}
-	if al.H2CirculatingPumpFault {
+	if (al.bitMap & AlarmH2CirculatingPumpFault) != 0 {
 		alarmText = append(alarmText, "Abnormal hydrogen pump")
 	}
-	if al.H2Leakageloss {
+	if (al.bitMap & AlarmH2Leakageloss) != 0 {
 		alarmText = append(alarmText, "Hydrogen leak check failed")
 	}
-	if al.H2OutPressureLow {
+	if (al.bitMap & AlarmH2OutPressureLow) != 0 {
 		alarmText = append(alarmText, "H2 Outlet Pressure Low")
 	}
-	if al.H2PressureHigh {
+	if (al.bitMap & AlarmH2PressureHigh) != 0 {
 		alarmText = append(alarmText, "Abnormally high hydrogen pressure")
 	}
-	if al.H2PressureSensorFault {
+	if (al.bitMap & AlarmH2PressureSensorFault) != 0 {
 		alarmText = append(alarmText, "The hydrogen outlet pressure sensor is abnormal")
 	}
-	if al.H2SOCLow {
+	if (al.bitMap & AlarmH2SOCLow) != 0 {
 		alarmText = append(alarmText, "Hydrogen tank SOC is too low")
 	}
-	if al.H2SPCheckFault {
+	if (al.bitMap & AlarmH2SPCheckFault) != 0 {
 		alarmText = append(alarmText, "Hydrogen pressure sensor self-test is abnormal")
 	}
-	if al.H2TankLowPressure {
+	if (al.bitMap & AlarmH2TankLowPressure) != 0 {
 		alarmText = append(alarmText, "Abnormal low pressure of hydrogen tank")
 	}
-	if al.H2TankMidPressure {
+	if (al.bitMap & AlarmH2TankMidPressure) != 0 {
 		alarmText = append(alarmText, "Abnormal pressure in the hydrogen tank")
 	}
-	if al.H2TankHighPressure {
+	if (al.bitMap & AlarmH2TankHighPressure) != 0 {
 		alarmText = append(alarmText, "Abnormal high pressure of hydrogen tank")
 	}
-	if al.H2TankTemp {
+	if (al.bitMap & AlarmH2TankTemp) != 0 {
 		alarmText = append(alarmText, "Abnormal temperature of hydrogen tank")
 	}
-	if al.IsoLow {
+	if (al.bitMap & AlarmIsoLow) != 0 {
 		alarmText = append(alarmText, "Abnormal low insulation")
 	}
-	if al.PtcFault {
+	if (al.bitMap & AlarmPtcFault) != 0 {
 		alarmText = append(alarmText, "Heater failure")
 	}
-	if al.StartUploss {
+	if (al.bitMap & AlarmStartUploss) != 0 {
 		alarmText = append(alarmText, "Low starting hydrogen pressure (below 20KPA)")
 	}
-	if al.TempSensorFault {
+	if (al.bitMap & AlarmTempSensorFault) != 0 {
 		alarmText = append(alarmText, "Abnormal temperature sensor")
 	}
-	if al.VoltageLow {
+	if (al.bitMap & AlarmVoltageLow) != 0 {
 		alarmText = append(alarmText, "Single cell voltage undervoltage")
 	}
-	if al.WaterPumpFault {
+	if (al.bitMap & AlarmWaterPumpFault) != 0 {
 		alarmText = append(alarmText, "Water pump failure")
 	}
 	return alarmText
@@ -1066,9 +1036,15 @@ func (fc *PANFuelCell) GetStatus() PanStatus {
 	status.DCOutputStatus = fc.DCOutput.GetStatus()
 	status.DCOutputFaultCode = fc.DCOutput.GetFaultCode()
 	status.Start = fc.Control.FuelCellOn
-	status.InsulationResistance = fc.Insulation.InsulationResistance
-	status.InsulationStatus = fc.Insulation.getStatus()
-	status.InsulationFault = fc.Insulation.getFault()
+	if !currentSettings.FuelCellSettings.IgnoreIsoLow {
+		status.InsulationResistance = fc.Insulation.InsulationResistance
+		status.InsulationStatus = fc.Insulation.getStatus()
+		status.InsulationFault = fc.Insulation.getFault()
+	} else {
+		status.InsulationResistance = 0xFFFF
+		status.InsulationStatus = ""
+		status.InsulationFault = ""
+	}
 	status.WaterPumpSpeed = fc.WaterPump.Speed
 	status.WaterPumpActive = fc.Control.PumpActive
 	status.CoolingFanSpeed = fc.ATSCoolingFan.Speed
@@ -1118,6 +1094,7 @@ type PANDatabaseRecordType struct {
 	FaultLevel            byte
 	PowerModeState        byte
 	CellVoltages          [32]int16
+	Alarms                uint32
 	mu                    sync.Mutex
 	stmt                  *sql.Stmt
 }
@@ -1139,7 +1116,7 @@ func (rec *PANDatabaseRecordType) saveToDatabase() error {
 		rec.CellVoltages[15], rec.CellVoltages[16], rec.CellVoltages[17], rec.CellVoltages[18], rec.CellVoltages[19],
 		rec.CellVoltages[20], rec.CellVoltages[21], rec.CellVoltages[22], rec.CellVoltages[23], rec.CellVoltages[24],
 		rec.CellVoltages[25], rec.CellVoltages[26], rec.CellVoltages[27], rec.CellVoltages[28], rec.CellVoltages[29],
-		rec.CellVoltages[30], rec.CellVoltages[31])
+		rec.CellVoltages[30], rec.CellVoltages[31], rec.Alarms)
 	if err != nil {
 		log.Println(err)
 	}

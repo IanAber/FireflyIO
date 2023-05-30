@@ -24,6 +24,11 @@ type PortNameType struct {
 	Port uint8
 }
 
+type ModbusNameType struct {
+	Name    string
+	SlaveID uint8
+}
+
 type FuelCellSettingsType struct {
 	HighBatterySetpoint float64 // Default high battery setpoint
 	LowBatterySetpoint  float64 // Default low battery setpoint
@@ -39,6 +44,8 @@ type SettingsType struct {
 	DigitalOutputs   [6]PortNameType
 	Relays           [16]PortNameType
 	FuelCellSettings FuelCellSettingsType
+	ACMeasurement    [4]ModbusNameType
+	DCMeasurement    [4]ModbusNameType
 	filepath         string
 }
 
@@ -70,6 +77,18 @@ func NewSettings() *SettingsType {
 	}
 	settings.FuelCellSettings.IgnoreIsoLow = false
 	settings.FuelCellSettings.Enabled = false
+
+	for i := range settings.ACMeasurement {
+		settings.ACMeasurement[i].Name = ""
+		settings.ACMeasurement[i].SlaveID = 0x20 + uint8(i)
+	}
+	for i := range settings.DCMeasurement {
+		settings.DCMeasurement[i].Name = ""
+		settings.DCMeasurement[i].SlaveID = 0x10 + uint8(i)
+	}
+	// Default to just one AC measurement device and no DC measurement devices.
+	settings.ACMeasurement[0].Name = "Firefly"
+
 	return settings
 }
 
@@ -98,6 +117,12 @@ func (settings *SettingsType) LoadSettings(filepath string) error {
 	}
 	for _, analog := range settings.AnalogChannels {
 		AnalogInputs.Inputs[analog.Port].Name = analog.Name
+	}
+	for i, ac := range settings.ACMeasurement {
+		ACMeasurements[i].Name = ac.Name
+	}
+	for i, dc := range settings.DCMeasurement {
+		DCMeasurements[i].Name = dc.Name
 	}
 	return nil
 }
@@ -143,4 +168,33 @@ func (settings *SettingsType) LoadFromJSON(jsonData []byte) error {
 	} else {
 		return nil
 	}
+}
+
+func (settings *SettingsType) getModbusFlags() (flags uint8) {
+	flags = 0
+	if len(settings.ACMeasurement[0].Name) > 0 {
+		flags |= 0b00000001
+	}
+	if len(settings.ACMeasurement[1].Name) > 0 {
+		flags |= 0b00000010
+	}
+	if len(settings.ACMeasurement[2].Name) > 0 {
+		flags |= 0b00000100
+	}
+	if len(settings.ACMeasurement[3].Name) > 0 {
+		flags |= 0b00001000
+	}
+	if len(settings.DCMeasurement[0].Name) > 0 {
+		flags |= 0b00010000
+	}
+	if len(settings.DCMeasurement[1].Name) > 0 {
+		flags |= 0b00100000
+	}
+	if len(settings.DCMeasurement[2].Name) > 0 {
+		flags |= 0b01000000
+	}
+	if len(settings.DCMeasurement[3].Name) > 0 {
+		flags |= 0b10000000
+	}
+	return
 }

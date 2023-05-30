@@ -23,7 +23,7 @@ function setUpFuelCellGauges() {
         height: size,
         values: [0.0, 0.0, 0.0, 0.0],
         min: 0,
-        max: 1000,
+        max: 150,
         animationDuration: 0,
         startAngle: 265,
         endAngle: 275,
@@ -126,7 +126,7 @@ function setUpFuelCellGauges() {
         height: size,
         values: [0.0, 0.0],
         min: 0,
-        max: 300,
+        max: 400,
         animationDuration: 0,
         startAngle: 265,
         endAngle: 275,
@@ -181,9 +181,9 @@ function setUpFuelCellGauges() {
         radius: (size / 2) - 25,
         ticksMinor: {interval: 500, size: '5%'},
         ticksMajor: {interval: 1000,size: '9%'},
-        labels: {interval:4000},
+        labels: {interval:5000},
         min: 0,
-        max: 12000,
+        max: 15000,
         value: 0,
         animationDuration: 500,
         cap: {size: '5%', style: { fill: '#ff0000', stroke: '#00ff00' }, visible: true},
@@ -199,7 +199,7 @@ function setUpFuelCellGauges() {
         ticksMajor: {interval: 50,size: '9%'},
         labels: {interval:50},
         min: 0,
-        max: 300,
+        max: 400,
         value: 0,
         animationDuration: 500,
         cap: {size: '5%', style: { fill: '#ff0000', stroke: '#00ff00' }, visible: true},
@@ -261,6 +261,9 @@ function setUpFuelCellGauges() {
 }
 
 function UpdateGauges(jsonData) {
+    if (jsonData.PanFuelCellStatus === null) {
+        return;
+    }
     PressuresNewVals = [jsonData.PanFuelCellStatus.H2Pressure,
         jsonData.PanFuelCellStatus.AirPressure,
         jsonData.PanFuelCellStatus.CoolantPressure,
@@ -299,9 +302,13 @@ function UpdateGauges(jsonData) {
     if ((CurrentsVals[0] !== CurrentsNewVals[0]) || (CurrentsVals[1] !== CurrentsNewVals[1]))
     Currents.val(CurrentsNewVals);
 
-    $('#fcInsulation').val(jsonData.PanFuelCellStatus.InsulationResistance);
-    $('#fcInsulationStatus').text(jsonData.PanFuelCellStatus.InsulationStatus);
-    $("#fcInsulationFault").text(jsonData.PanFuelCellStatus.InsulationFault);
+    if (jsonData.PanFuelCellStatus.InsulationResistance === 65535) {
+        $("#InsulationDiv").hide();
+    } else {
+        $('#fcInsulation').val(jsonData.PanFuelCellStatus.InsulationResistance);
+        $('#fcInsulationStatus').text(jsonData.PanFuelCellStatus.InsulationStatus);
+        $("#fcInsulationFault").text(jsonData.PanFuelCellStatus.InsulationFault);
+    }
     $("#fcStackPower").val(jsonData.PanFuelCellStatus.StackPower);
     $("#fcStackVolts").val(jsonData.PanFuelCellStatus.StackVolts);
     $("#fcStackCurrent").val(jsonData.PanFuelCellStatus.StackCurrent);

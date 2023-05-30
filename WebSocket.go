@@ -76,6 +76,8 @@ func (pool *Pool) Start() {
 				if err := client.Conn.WriteMessage(websocket.TextMessage, message); err != nil {
 					log.Printf("Broadcast update error - %s\n", err)
 					delete(pool.Clients, client)
+				} else {
+					log.Print("Broadcast to - ", client.Conn.UnderlyingConn().RemoteAddr())
 				}
 			}
 		}

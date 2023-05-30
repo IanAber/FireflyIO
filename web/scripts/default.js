@@ -3,9 +3,6 @@ var wstimeout;
 function showTimeoutMessage() {
     $("#connection").show();
     registerWebSocket();
-    setInterval(() => {
-        UpdateGauges(jsonData);
-    }, 1000);
 }
 
 var jsonData;
@@ -32,12 +29,26 @@ function registerWebSocket() {
             jsonData.DigitalIn.Inputs.forEach(UpdateInput);
             jsonData.DigitalOut.Outputs.forEach(UpdateOutput);
             jsonData.Analog.Inputs.forEach(UpdateAnalog);
-            $("#acvolts").text(jsonData.ACVolts);
-            $("#acamps").text(jsonData.ACAmps);
-            $("#acwatts").text(jsonData.ACWatts);
-            $("#acwhr").text(jsonData.ACWattHours);
-            $("#achz").text(jsonData.ACHertz);
-            $("#acpf").text(jsonData.ACPowerFactor);
+            if (jsonData.ACMeasurements.length > 0) {
+                $("#ACMeasurementsDiv").show();
+                jsonData.ACMeasurements.forEach(updateAC);
+                for (i = jsonData.ACMeasurements.length + 1; i < 5; i++) {
+                    $("#AC" + i).hide();
+                    $("#ACErr" + i).hide();
+                }
+            } else {
+                $("#ACMeasurementsDiv").hide();
+            }
+            if (jsonData.DCMeasurements.length > 0) {
+                $("#DCMeasurementsDiv").show();
+                jsonData.DCMeasurements.forEach(updateDC);
+                for (i = jsonData.DCMeasurements.length + 1; i < 5; i++) {
+                    $("#DC" + i).hide();
+                    $("#DCErr" + i).hide();
+                }
+            } else {
+                $("#DCMeasurementsDiv").hide();
+            }
             $("#BMSPower").text(jsonData.PanFuelCellStatus.BMSPower);
             $("#BMSHigh").text(jsonData.PanFuelCellStatus.BMSHigh);
             $("#BMSLow").text(jsonData.PanFuelCellStatus.BMSLow);
@@ -47,6 +58,7 @@ function registerWebSocket() {
             $("#BMSTargetLow").text(jsonData.PanFuelCellStatus.BMSTargetLow);
             $("#FCStatus").text(jsonData.PanFuelCellStatus.RunStatus);
             $("#FCDCOutputStatus").text(jsonData.PanFuelCellStatus.DCOutputStatus);
+            UpdateGauges(jsonData);
         } catch (e) {
             alert(e);
         }
@@ -67,10 +79,6 @@ function setupPage() {
     $(window).on('windowResize', function () {
         window.location.reload();
     });
-
-    setInterval(() => {
-        UpdateGauges(jsonData);
-    }, 1000);
 }
 
 
@@ -117,6 +125,43 @@ function UpdateAnalog(analog, idx) {
     $("#a"+idx+"raw").text(analog.Raw);
     $("#a"+idx+"value").text(analog.Value.toFixed(2));
 }
+
+function updateAC(ac, idx) {
+    idx++;
+    if (ac.Error === "") {
+        $("#AC" + idx).show();
+        $("#ACErr" + idx).hide();
+        $("#acname" + idx).text(ac.Name);
+        $("#acvolts" + idx).text(ac.ACVolts);
+        $("#acamps" + idx).text(ac.ACAmps);
+        $("#acwatts" + idx).text(ac.ACWatts);
+        $("#acwhr" + idx).text(ac.ACWattHours);
+        $("#achz" + idx).text(ac.ACHertz);
+        $("#acpf" + idx).text(ac.ACPowerFactor);
+    } else {
+        $("#AC" + idx).hide();
+        $("#ACErr" + idx).show();
+        $("#acnameerr" + idx).text(ac.Name)
+        $("#acerr" + idx).text(ac.Error);
+    }
+}
+
+function updateDC(dc, idx) {
+    idx++;
+    if (dc.Error === "") {
+        $("#DC" + idx).show();
+        $("#DCErr" + idx).hide();
+        $("#dcname" + idx).text(dc.Name);
+        $("#dcvolts" + idx).text(dc.DCVolts);
+        $("#dcamps" + idx).text(dc.DCAmps);
+    } else {
+        $("#DC" + idx).hide();
+        $("#DCErr" + idx).show();
+        $("#dcnameerr" + idx).text(dc.Name)
+        $("#dcerr" + idx).text(dc.Error);
+    }
+}
+
 
 function  clickRelay(id) {
     rl = $("#relay" + id);
